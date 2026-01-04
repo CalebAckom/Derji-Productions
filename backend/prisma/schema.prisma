@@ -1,0 +1,120 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String   @map("password_hash")
+  role         String   @default("admin")
+  firstName    String?  @map("first_name")
+  lastName     String?  @map("last_name")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  @@map("users")
+}
+
+model Service {
+  id          String   @id @default(cuid())
+  name        String
+  category    String   // 'photography', 'videography', 'sound'
+  subcategory String?
+  description String?
+  basePrice   Decimal? @map("base_price")
+  priceType   String   @default("fixed") @map("price_type") // 'fixed', 'hourly', 'package'
+  duration    Int?     @map("duration_minutes") // in minutes
+  features    Json?
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  bookings Booking[]
+
+  @@map("services")
+}
+
+model PortfolioItem {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  category    String   // 'photography', 'videography', 'sound'
+  clientName  String?  @map("client_name")
+  projectDate DateTime? @map("project_date")
+  featured    Boolean  @default(false)
+  tags        Json?
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  media PortfolioMedia[]
+
+  @@map("portfolio_items")
+}
+
+model PortfolioMedia {
+  id               String        @id @default(cuid())
+  portfolioItemId  String        @map("portfolio_item_id")
+  mediaType        String        @map("media_type") // 'image', 'video', 'audio'
+  fileUrl          String        @map("file_url")
+  thumbnailUrl     String?       @map("thumbnail_url")
+  fileSize         Int?          @map("file_size")
+  width            Int?
+  height           Int?
+  durationSeconds  Int?          @map("duration_seconds")
+  altText          String?       @map("alt_text")
+  sortOrder        Int           @default(0) @map("sort_order")
+  createdAt        DateTime      @default(now()) @map("created_at")
+
+  // Relations
+  portfolioItem PortfolioItem @relation(fields: [portfolioItemId], references: [id], onDelete: Cascade)
+
+  @@map("portfolio_media")
+}
+
+model Booking {
+  id             String   @id @default(cuid())
+  clientName     String   @map("client_name")
+  clientEmail    String   @map("client_email")
+  clientPhone    String?  @map("client_phone")
+  serviceId      String?  @map("service_id")
+  bookingDate    DateTime @map("booking_date")
+  startTime      DateTime @map("start_time")
+  endTime        DateTime @map("end_time")
+  status         String   @default("pending") // 'pending', 'confirmed', 'cancelled', 'completed'
+  projectDetails String?  @map("project_details")
+  budgetRange    String?  @map("budget_range")
+  location       String?
+  notes          String?
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  service Service? @relation(fields: [serviceId], references: [id])
+
+  @@map("bookings")
+}
+
+model ContactInquiry {
+  id              String   @id @default(cuid())
+  name            String
+  email           String
+  phone           String?
+  subject         String?
+  message         String
+  serviceInterest String?  @map("service_interest")
+  status          String   @default("new") // 'new', 'responded', 'closed'
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  @@map("contact_inquiries")
+}
