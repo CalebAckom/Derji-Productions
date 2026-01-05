@@ -50,6 +50,7 @@ import serviceRoutes from './routes/services';
 import serviceCategoryRoutes from './routes/serviceCategories';
 import portfolioRoutes from './routes/portfolio';
 import bookingRoutes from './routes/bookings';
+import contactRoutes from './routes/contact';
 
 const app = express();
 const PORT = process.env['PORT'] || 5000;
@@ -139,6 +140,7 @@ app.use('/api/services', serviceRoutes);
 app.use('/api/service-categories', serviceCategoryRoutes);
 app.use('/api/portfolio', portfolioRoutes);
 app.use('/api/bookings', bookingRoutes);
+app.use('/api/contact', contactRoutes);
 
 // API root endpoint
 app.get('/api', (req, res) => {
@@ -157,6 +159,7 @@ app.get('/api', (req, res) => {
       serviceCategories: '/api/service-categories',
       portfolio: '/api/portfolio',
       bookings: '/api/bookings',
+      contact: '/api/contact',
       docs: '/api-docs',
     },
     requestId: req.headers['x-request-id'],

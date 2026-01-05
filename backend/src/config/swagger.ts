@@ -402,6 +402,22 @@ const swaggerDefinition = {
       name: 'Health',
       description: 'System health and monitoring endpoints',
     },
+    {
+      name: 'Files',
+      description: 'File upload and management endpoints',
+    },
+    {
+      name: 'Monitoring',
+      description: 'Application monitoring and logging endpoints',
+    },
+    {
+      name: 'Portfolio Media',
+      description: 'Endpoints related to portfolio media management',
+    },
+    {
+      name: 'Service Categories',
+      description: 'Endpoints related to service category management',
+    }
   ],
 };
 
