@@ -10,6 +10,9 @@ import path from 'path';
 // Load environment variables from backend/.env file
 dotenv.config({ path: path.resolve(__dirname, '../.env') });
 
+// Import routes
+import authRoutes from './routes/auth';
+
 const app = express();
 const PORT = process.env['PORT'] || 5000;
 
@@ -43,6 +46,9 @@ app.get('/health', (_req, res) => {
   });
 });
 
+// API routes
+app.use('/api/auth', authRoutes);
+
 // API routes placeholder
 app.get('/api', (_req, res) => {
   res.json({
@@ -51,6 +57,7 @@ app.get('/api', (_req, res) => {
     endpoints: {
       health: '/health',
       api: '/api',
+      auth: '/api/auth',
     },
   });
 });
