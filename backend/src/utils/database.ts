@@ -87,14 +87,14 @@ export async function testDatabaseOperations(): Promise<{
   
   try {
     // Test basic connection
-    operations.connection = await checkDatabaseHealth();
+    operations['connection'] = await checkDatabaseHealth();
     
     // Test read operations
     try {
       await prisma.user.findFirst();
-      operations.read = true;
+      operations['read'] = true;
     } catch {
-      operations.read = false;
+      operations['read'] = false;
     }
     
     // Test write operations (create and delete a test record)
@@ -112,9 +112,9 @@ export async function testDatabaseOperations(): Promise<{
         where: { id: testUser.id },
       });
       
-      operations.write = true;
+      operations['write'] = true;
     } catch {
-      operations.write = false;
+      operations['write'] = false;
     }
     
     // Test transactions
@@ -123,9 +123,9 @@ export async function testDatabaseOperations(): Promise<{
         await tx.user.findFirst();
         await tx.service.findFirst();
       });
-      operations.transaction = true;
+      operations['transaction'] = true;
     } catch {
-      operations.transaction = false;
+      operations['transaction'] = false;
     }
     
     const allOperationsSuccessful = Object.values(operations).every(Boolean);

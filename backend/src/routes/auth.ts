@@ -1,6 +1,14 @@
 import { Router } from 'express';
 import { authController } from '../controllers/authController';
 import { authenticateToken } from '../middleware/auth';
+import { validate } from '../middleware/validation';
+import {
+  registerSchema,
+  loginSchema,
+  refreshTokenSchema,
+  forgotPasswordSchema,
+  resetPasswordSchema,
+} from '../schemas/auth';
 
 const router = Router();
 
@@ -88,7 +96,7 @@ const router = Router();
  *       409:
  *         description: User already exists
  */
-router.post('/register', authController.register.bind(authController));
+router.post('/register', validate({ body: registerSchema.shape.body }), authController.register.bind(authController));
 
 /**
  * @swagger
@@ -126,7 +134,7 @@ router.post('/register', authController.register.bind(authController));
  *       401:
  *         description: Invalid credentials
  */
-router.post('/login', authController.login.bind(authController));
+router.post('/login', validate({ body: loginSchema.shape.body }), authController.login.bind(authController));
 
 /**
  * @swagger
@@ -160,7 +168,7 @@ router.post('/login', authController.login.bind(authController));
  *       401:
  *         description: Invalid refresh token
  */
-router.post('/refresh', authController.refreshToken.bind(authController));
+router.post('/refresh', validate({ body: refreshTokenSchema.shape.body }), authController.refreshToken.bind(authController));
 
 /**
  * @swagger
@@ -184,7 +192,7 @@ router.post('/refresh', authController.refreshToken.bind(authController));
  *       200:
  *         description: Password reset token generated
  */
-router.post('/forgot-password', authController.forgotPassword.bind(authController));
+router.post('/forgot-password', validate({ body: forgotPasswordSchema.shape.body }), authController.forgotPassword.bind(authController));
 
 /**
  * @swagger
@@ -213,7 +221,7 @@ router.post('/forgot-password', authController.forgotPassword.bind(authControlle
  *       401:
  *         description: Invalid or expired reset token
  */
-router.post('/reset-password', authController.resetPassword.bind(authController));
+router.post('/reset-password', validate({ body: resetPasswordSchema.shape.body }), authController.resetPassword.bind(authController));
 
 /**
  * @swagger

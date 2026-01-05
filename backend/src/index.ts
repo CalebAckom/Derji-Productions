@@ -1,14 +1,39 @@
 import express from 'express';
-import cors from 'cors';
 import helmet from 'helmet';
-import morgan from 'morgan';
 import compression from 'compression';
-import rateLimit from 'express-rate-limit';
 import dotenv from 'dotenv';
 import path from 'path';
 
 // Load environment variables from backend/.env file
 dotenv.config({ path: path.resolve(__dirname, '../.env') });
+
+// Import middleware
+import { corsMiddleware, securityHeaders } from './middleware/cors';
+import { 
+  generalLimiter, 
+  authLimiter, 
+  contactLimiter, 
+  bookingLimiter,
+  uploadLimiter,
+  adminLimiter 
+} from './middleware/rateLimiting';
+import { 
+  requestId, 
+  devLogger, 
+  prodLogger, 
+  performanceLogger, 
+  analyticsLogger,
+  errorLogger 
+} from './middleware/logging';
+import { 
+  errorHandler, 
+  notFoundHandler, 
+  handleUncaughtException, 
+  handleUnhandledRejection 
+} from './middleware/errorHandler';
+
+// Import configuration
+import { setupSwagger } from './config/swagger';
 
 // Import routes
 import authRoutes from './routes/auth';
@@ -16,77 +41,130 @@ import authRoutes from './routes/auth';
 const app = express();
 const PORT = process.env['PORT'] || 5000;
 
+// Handle uncaught exceptions and unhandled rejections
+process.on('uncaughtException', handleUncaughtException);
+process.on('unhandledRejection', handleUnhandledRejection);
+
+// Trust proxy (important for rate limiting and IP detection)
+app.set('trust proxy', 1);
+
+// Request ID middleware (must be first)
+app.use(requestId);
+
 // Security middleware
-app.use(helmet());
-app.use(cors({
-  origin: process.env['FRONTEND_URL'] || 'http://localhost:3000',
-  credentials: true,
+app.use(helmet({
+  contentSecurityPolicy: false, // We handle this in securityHeaders
+  crossOriginEmbedderPolicy: false, // Allow embedding for Swagger UI
 }));
+app.use(securityHeaders);
 
-// Rate limiting
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // limit each IP to 100 requests per windowMs
-  message: 'Too many requests from this IP, please try again later.',
-});
-app.use('/api', limiter);
+// CORS middleware
+app.use(corsMiddleware);
 
-// General middleware
+// Compression middleware
 app.use(compression());
-app.use(morgan('combined'));
-app.use(express.json({ limit: '10mb' }));
+
+// Logging middleware
+app.use(performanceLogger);
+app.use(process.env['NODE_ENV'] === 'production' ? prodLogger : devLogger);
+app.use(analyticsLogger);
+
+// Body parsing middleware
+app.use(express.json({ 
+  limit: '10mb',
+  verify: (req, _res, buf) => {
+    // Store raw body for webhook verification if needed
+    (req as any).rawBody = buf;
+  }
+}));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
+// Rate limiting middleware
+app.use('/api', generalLimiter);
+app.use('/api/auth', authLimiter);
+app.use('/api/contact', contactLimiter);
+app.use('/api/bookings', bookingLimiter);
+app.use('/api/upload', uploadLimiter);
+app.use('/api/admin', adminLimiter);
+
 // Health check endpoint
-app.get('/health', (_req, res) => {
+app.get('/health', (req, res) => {
   res.status(200).json({
     status: 'OK',
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
+    environment: process.env['NODE_ENV'] || 'development',
+    version: '1.0.0',
+    requestId: req.headers['x-request-id'],
   });
 });
+
+// Setup API documentation
+setupSwagger(app);
 
 // API routes
 app.use('/api/auth', authRoutes);
 
-// API routes placeholder
-app.get('/api', (_req, res) => {
+// API root endpoint
+app.get('/api', (req, res) => {
   res.json({
     message: 'Derji Productions API',
     version: '1.0.0',
+    environment: process.env['NODE_ENV'] || 'development',
+    timestamp: new Date().toISOString(),
+    documentation: '/api-docs',
     endpoints: {
       health: '/health',
       api: '/api',
       auth: '/api/auth',
+      docs: '/api-docs',
     },
+    requestId: req.headers['x-request-id'],
   });
 });
+
+// Error logging middleware (before error handler)
+app.use(errorLogger);
 
 // 404 handler
-app.use('*', (_req, res) => {
-  res.status(404).json({
-    error: 'Not Found',
-    message: 'The requested resource was not found on this server.',
-  });
-});
+app.use(notFoundHandler);
 
-// Global error handler
-app.use((err: any, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
-  console.error('Error:', err);
-  
-  res.status(err.status || 500).json({
-    error: process.env['NODE_ENV'] === 'production' ? 'Internal Server Error' : err.message,
-    ...(process.env['NODE_ENV'] !== 'production' && { stack: err.stack }),
-  });
-});
+// Global error handler (must be last)
+app.use(errorHandler);
 
 // Start server only if not in test environment
 if (process.env['NODE_ENV'] !== 'test') {
-  app.listen(PORT, () => {
+  const server = app.listen(PORT, () => {
     console.log(`🚀 Server running on port ${PORT}`);
     console.log(`📊 Health check: http://localhost:${PORT}/health`);
     console.log(`🔗 API: http://localhost:${PORT}/api`);
+    console.log(`📚 API Documentation: http://localhost:${PORT}/api-docs`);
+    console.log(`🌍 Environment: ${process.env['NODE_ENV'] || 'development'}`);
   });
+
+  // Graceful shutdown
+  const gracefulShutdown = (signal: string) => {
+    console.log(`\n${signal} received. Starting graceful shutdown...`);
+    
+    server.close((err) => {
+      if (err) {
+        console.error('Error during server shutdown:', err);
+        process.exit(1);
+      }
+      
+      console.log('Server closed successfully');
+      process.exit(0);
+    });
+
+    // Force shutdown after 30 seconds
+    setTimeout(() => {
+      console.error('Forced shutdown after timeout');
+      process.exit(1);
+    }, 30000);
+  };
+
+  process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+  process.on('SIGINT', () => gracefulShutdown('SIGINT'));
 }
 
 export default app;

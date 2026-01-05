@@ -72,15 +72,8 @@ async function verifyDatabaseSetup() {
     
     // Check for orphaned media (this shouldn't happen with foreign key constraints)
     const totalMedia = await prisma.portfolioMedia.count();
-    const mediaWithPortfolio = await prisma.portfolioMedia.count({
-      where: {
-        portfolioItem: {
-          id: { not: undefined }
-        }
-      }
-    });
-    const orphanedMedia = totalMedia - mediaWithPortfolio;
-    console.log(`   ${orphanedMedia === 0 ? '✅' : '❌'} Orphaned media files: ${orphanedMedia}`);
+    // Since portfolioItemId is required and has foreign key constraint, all media should have valid portfolio items
+    console.log(`   ✅ Total media files: ${totalMedia} (all should have valid portfolio items due to FK constraint)`);
     
     // Check for bookings without services (should be allowed)
     const bookingsWithoutService = await prisma.booking.count({

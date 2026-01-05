@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from 'express';
+import { Response, NextFunction } from 'express';
 import { authService } from '../services/authService';
 import { AuthenticatedRequest } from '../types/auth';
 
@@ -44,9 +44,9 @@ export const authenticateToken = async (
 };
 
 export const requireRole = (allowedRoles: string[]) => {
-  return (req: AuthenticatedRequest, res: Response, next: NextFunction): void => {
+  return (req: AuthenticatedRequest, _res: Response, next: NextFunction): void => {
     if (!req.user) {
-      res.status(401).json({
+      _res.status(401).json({
         error: 'Authentication required',
         message: 'Please authenticate first'
       });
@@ -54,7 +54,7 @@ export const requireRole = (allowedRoles: string[]) => {
     }
 
     if (!allowedRoles.includes(req.user.role)) {
-      res.status(403).json({
+      _res.status(403).json({
         error: 'Insufficient permissions',
         message: `Access denied. Required roles: ${allowedRoles.join(', ')}`
       });
@@ -69,7 +69,7 @@ export const requireAdmin = requireRole(['admin']);
 
 export const optionalAuth = async (
   req: AuthenticatedRequest,
-  res: Response,
+  _res: Response,
   next: NextFunction
 ): Promise<void> => {
   try {

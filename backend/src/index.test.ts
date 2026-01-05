@@ -26,6 +26,8 @@ describe('API Endpoints', () => {
       .get('/unknown-route')
       .expect(404);
     
-    expect(response.body.error).toBe('Not Found');
+    expect(response.body.error.code).toBe('NOT_FOUND');
+    expect(response.body.error.status).toBe(404);
+    expect(response.body.error.message).toContain('Resource not found');
   });
 });
