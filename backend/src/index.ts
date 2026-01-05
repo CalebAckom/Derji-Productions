@@ -44,6 +44,7 @@ import { setupSwagger } from './config/swagger';
 
 // Import routes
 import authRoutes from './routes/auth';
+import fileRoutes from './routes/files';
 import monitoringRoutes from './routes/monitoring';
 
 const app = express();
@@ -128,6 +129,7 @@ setupSwagger(app);
 
 // API routes
 app.use('/api/auth', authRoutes);
+app.use('/api/files', fileRoutes);
 app.use('/api/monitoring', monitoringRoutes);
 
 // API root endpoint
@@ -142,6 +144,7 @@ app.get('/api', (req, res) => {
       health: '/health',
       api: '/api',
       auth: '/api/auth',
+      files: '/api/files',
       docs: '/api-docs',
     },
     requestId: req.headers['x-request-id'],
