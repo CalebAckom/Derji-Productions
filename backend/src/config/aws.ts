@@ -29,12 +29,12 @@ export const s3 = new AWS.S3({
 });
 
 // Log AWS configuration (without sensitive data)
-console.log('AWS S3 Configuration:', {
-  region: awsRegion,
-  bucket: process.env['AWS_S3_BUCKET'],
-  hasCredentials: !!(awsAccessKeyId && awsSecretAccessKey),
-  accessKeyId: awsAccessKeyId ? `${awsAccessKeyId.substring(0, 8)}...` : 'Not set'
-});
+// console.log('AWS S3 Configuration:', {
+//   region: awsRegion,
+//   bucket: process.env['AWS_S3_BUCKET'],
+//   hasCredentials: !!(awsAccessKeyId && awsSecretAccessKey),
+//   accessKeyId: awsAccessKeyId ? `${awsAccessKeyId.substring(0, 8)}...` : 'Not set'
+// });
 
 // S3 configuration
 export const S3_CONFIG = {
