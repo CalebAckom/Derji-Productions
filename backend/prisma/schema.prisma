@@ -23,10 +23,27 @@ model User {
   @@map("users")
 }
 
+model ServiceCategory {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  slug        String   @unique
+  description String?
+  icon        String?  // Icon name or URL for UI
+  active      Boolean  @default(true)
+  sortOrder   Int      @default(0) @map("sort_order")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  services Service[]
+
+  @@map("service_categories")
+}
+
 model Service {
   id          String   @id @default(cuid())
   name        String
-  category    String   // 'photography', 'videography', 'sound'
+  categoryId  String   @map("category_id")
   subcategory String?
   description String?
   basePrice   Decimal? @map("base_price")
@@ -38,6 +55,7 @@ model Service {
   updatedAt   DateTime @updatedAt @map("updated_at")
 
   // Relations
+  category ServiceCategory @relation(fields: [categoryId], references: [id])
   bookings Booking[]
 
   @@map("services")

@@ -34,7 +34,7 @@ async function main() {
     prisma.service.create({
       data: {
         name: 'Wedding Photography',
-        category: 'photography',
+        categoryId: 'cat_photography',
         subcategory: 'Wedding',
         description: 'Professional wedding photography capturing your special moments with artistic flair and attention to detail.',
         basePrice: 1500.00,
@@ -47,7 +47,7 @@ async function main() {
     prisma.service.create({
       data: {
         name: 'Corporate Photography',
-        category: 'photography',
+        categoryId: 'cat_photography',
         subcategory: 'Corporate',
         description: 'Professional corporate headshots and event photography for businesses and organizations.',
         basePrice: 200.00,
@@ -60,7 +60,7 @@ async function main() {
     prisma.service.create({
       data: {
         name: 'Birthday Photography',
-        category: 'photography',
+        categoryId: 'cat_photography',
         subcategory: 'Birthday',
         description: 'Capture precious birthday moments with creative and fun photography sessions.',
         basePrice: 300.00,
@@ -73,7 +73,7 @@ async function main() {
     prisma.service.create({
       data: {
         name: 'Drone Aerial Photography',
-        category: 'photography',
+        categoryId: 'cat_photography',
         subcategory: 'Drone aerial shoot',
         description: 'Stunning aerial photography and videography using professional drone equipment.',
         basePrice: 400.00,
@@ -89,7 +89,7 @@ async function main() {
     prisma.service.create({
       data: {
         name: 'Live Streaming',
-        category: 'videography',
+        categoryId: 'cat_videography',
         subcategory: 'Livestreaming',
         description: 'Professional live streaming services for events, conferences, and special occasions.',
         basePrice: 500.00,
@@ -102,7 +102,7 @@ async function main() {
     prisma.service.create({
       data: {
         name: 'Video Post-Production',
-        category: 'videography',
+        categoryId: 'cat_videography',
         subcategory: 'Post-production',
         description: 'Complete video editing and post-production services including color grading and audio mixing.',
         basePrice: 100.00,
@@ -115,7 +115,7 @@ async function main() {
     prisma.service.create({
       data: {
         name: 'Podcast Video Production',
-        category: 'videography',
+        categoryId: 'cat_videography',
         subcategory: 'Podcast',
         description: 'Complete podcast video production from recording to final edited episodes.',
         basePrice: 800.00,
@@ -131,7 +131,7 @@ async function main() {
     prisma.service.create({
       data: {
         name: 'Live Sound Production',
-        category: 'sound',
+        categoryId: 'cat_sound',
         subcategory: 'Live sound production',
         description: 'Professional live sound engineering for concerts, events, and performances.',
         basePrice: 300.00,
@@ -144,7 +144,7 @@ async function main() {
     prisma.service.create({
       data: {
         name: 'Audio Post-Production',
-        category: 'sound',
+        categoryId: 'cat_sound',
         subcategory: 'Post sound production',
         description: 'Professional audio editing, mixing, and mastering services for various media projects.',
         basePrice: 80.00,
@@ -157,7 +157,7 @@ async function main() {
     prisma.service.create({
       data: {
         name: 'Podcast Audio Production',
-        category: 'sound',
+        categoryId: 'cat_sound',
         subcategory: 'Podcast',
         description: 'Complete podcast audio production including recording, editing, and distribution preparation.',
         basePrice: 150.00,
