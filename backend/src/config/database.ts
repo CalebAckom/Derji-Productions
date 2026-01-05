@@ -9,12 +9,18 @@ declare global {
   var __prisma: PrismaClient | undefined;
 }
 
+// Ensure DATABASE_URL is present and use bracket access to satisfy TS4111
+const databaseUrl = process.env['DATABASE_URL'];
+if (!databaseUrl) {
+  throw new Error('DATABASE_URL is not defined in environment variables');
+}
+
 // Prevent multiple instances of Prisma Client in development
 const prisma = globalThis.__prisma || new PrismaClient({
   log: process.env['NODE_ENV'] === 'development' ? ['query', 'error', 'warn'] : ['error'],
   datasources: {
     db: {
-      url: process.env.DATABASE_URL,
+      url: databaseUrl,
     },
   },
 });
