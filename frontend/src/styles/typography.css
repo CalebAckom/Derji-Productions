@@ -1,0 +1,265 @@
+/* Typography System for Derji Productions */
+
+/* Font Loading */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
+
+/* Typography Utilities */
+@layer utilities {
+  /* Font Families */
+  .font-sans {
+    font-family: var(--font-family-sans);
+  }
+
+  .font-display {
+    font-family: var(--font-family-display);
+  }
+
+  .font-mono {
+    font-family: var(--font-family-mono);
+  }
+
+  /* Font Sizes with Line Heights */
+  .text-xs {
+    font-size: var(--font-size-xs);
+    line-height: var(--line-height-normal);
+  }
+
+  .text-sm {
+    font-size: var(--font-size-sm);
+    line-height: var(--line-height-normal);
+  }
+
+  .text-base {
+    font-size: var(--font-size-base);
+    line-height: var(--line-height-normal);
+  }
+
+  .text-lg {
+    font-size: var(--font-size-lg);
+    line-height: var(--line-height-relaxed);
+  }
+
+  .text-xl {
+    font-size: var(--font-size-xl);
+    line-height: var(--line-height-relaxed);
+  }
+
+  .text-2xl {
+    font-size: var(--font-size-2xl);
+    line-height: var(--line-height-tight);
+  }
+
+  .text-3xl {
+    font-size: var(--font-size-3xl);
+    line-height: var(--line-height-tight);
+  }
+
+  .text-4xl {
+    font-size: var(--font-size-4xl);
+    line-height: var(--line-height-tight);
+  }
+
+  .text-5xl {
+    font-size: var(--font-size-5xl);
+    line-height: var(--line-height-tight);
+  }
+
+  .text-6xl {
+    font-size: var(--font-size-6xl);
+    line-height: var(--line-height-tight);
+  }
+
+  /* Font Weights */
+  .font-light {
+    font-weight: var(--font-weight-light);
+  }
+
+  .font-normal {
+    font-weight: var(--font-weight-normal);
+  }
+
+  .font-medium {
+    font-weight: var(--font-weight-medium);
+  }
+
+  .font-semibold {
+    font-weight: var(--font-weight-semibold);
+  }
+
+  .font-bold {
+    font-weight: var(--font-weight-bold);
+  }
+
+  .font-extrabold {
+    font-weight: var(--font-weight-extrabold);
+  }
+
+  /* Line Heights */
+  .leading-tight {
+    line-height: var(--line-height-tight);
+  }
+
+  .leading-snug {
+    line-height: var(--line-height-snug);
+  }
+
+  .leading-normal {
+    line-height: var(--line-height-normal);
+  }
+
+  .leading-relaxed {
+    line-height: var(--line-height-relaxed);
+  }
+
+  .leading-loose {
+    line-height: var(--line-height-loose);
+  }
+
+  /* Text Styles */
+  .text-gradient-golden {
+    background: linear-gradient(135deg, var(--color-primary-500), var(--color-primary-700));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .text-shadow-sm {
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  }
+
+  .text-shadow {
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  .text-shadow-lg {
+    text-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  }
+
+  /* Responsive Typography */
+  .responsive-text-xs {
+    font-size: var(--font-size-xs);
+  }
+
+  .responsive-text-sm {
+    font-size: var(--font-size-sm);
+  }
+
+  .responsive-text-base {
+    font-size: var(--font-size-base);
+  }
+
+  .responsive-text-lg {
+    font-size: var(--font-size-lg);
+  }
+
+  @media (min-width: 640px) {
+    .responsive-text-xs {
+      font-size: var(--font-size-sm);
+    }
+
+    .responsive-text-sm {
+      font-size: var(--font-size-base);
+    }
+
+    .responsive-text-base {
+      font-size: var(--font-size-lg);
+    }
+
+    .responsive-text-lg {
+      font-size: var(--font-size-xl);
+    }
+  }
+
+  @media (min-width: 768px) {
+    .responsive-text-xs {
+      font-size: var(--font-size-base);
+    }
+
+    .responsive-text-sm {
+      font-size: var(--font-size-lg);
+    }
+
+    .responsive-text-base {
+      font-size: var(--font-size-xl);
+    }
+
+    .responsive-text-lg {
+      font-size: var(--font-size-2xl);
+    }
+  }
+
+  /* Typography Components */
+  .heading-hero {
+    font-family: var(--font-family-display);
+    font-size: var(--font-size-4xl);
+    font-weight: var(--font-weight-bold);
+    line-height: var(--line-height-tight);
+    letter-spacing: -0.025em;
+  }
+
+  .heading-section {
+    font-family: var(--font-family-display);
+    font-size: var(--font-size-3xl);
+    font-weight: var(--font-weight-semibold);
+    line-height: var(--line-height-tight);
+  }
+
+  .heading-card {
+    font-family: var(--font-family-display);
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-semibold);
+    line-height: var(--line-height-snug);
+  }
+
+  .body-large {
+    font-family: var(--font-family-sans);
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-normal);
+    line-height: var(--line-height-relaxed);
+  }
+
+  .body-normal {
+    font-family: var(--font-family-sans);
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-normal);
+    line-height: var(--line-height-normal);
+  }
+
+  .body-small {
+    font-family: var(--font-family-sans);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-normal);
+    line-height: var(--line-height-normal);
+  }
+
+  .caption {
+    font-family: var(--font-family-sans);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-medium);
+    line-height: var(--line-height-normal);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  /* Responsive Typography Scales */
+  @media (min-width: 640px) {
+    .heading-hero {
+      font-size: var(--font-size-5xl);
+    }
+
+    .heading-section {
+      font-size: var(--font-size-4xl);
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .heading-hero {
+      font-size: var(--font-size-6xl);
+    }
+
+    .heading-section {
+      font-size: var(--font-size-5xl);
+    }
+  }
+}
