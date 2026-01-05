@@ -22,9 +22,18 @@ if (awsAccessKeyId && awsSecretAccessKey) {
 // Create S3 instance
 export const s3 = new AWS.S3({
   apiVersion: '2006-03-01',
+  region: awsRegion,
   params: {
     Bucket: process.env['AWS_S3_BUCKET'],
   },
+});
+
+// Log AWS configuration (without sensitive data)
+console.log('AWS S3 Configuration:', {
+  region: awsRegion,
+  bucket: process.env['AWS_S3_BUCKET'],
+  hasCredentials: !!(awsAccessKeyId && awsSecretAccessKey),
+  accessKeyId: awsAccessKeyId ? `${awsAccessKeyId.substring(0, 8)}...` : 'Not set'
 });
 
 // S3 configuration
