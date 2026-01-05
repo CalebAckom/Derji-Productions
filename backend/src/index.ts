@@ -7,6 +7,9 @@ import path from 'path';
 // Load environment variables from backend/.env file
 dotenv.config({ path: path.resolve(__dirname, '../.env') });
 
+// Import logging configuration first
+import logger, { closeLogger } from './config/logger';
+
 // Import middleware
 import { corsMiddleware, securityHeaders } from './middleware/cors';
 import { 
@@ -32,11 +35,16 @@ import {
   handleUnhandledRejection 
 } from './middleware/errorHandler';
 
+// Import services
+import { loggingServiceMiddleware } from './services/loggingService';
+import { monitoringMiddleware, monitoringService } from './services/monitoringService';
+
 // Import configuration
 import { setupSwagger } from './config/swagger';
 
 // Import routes
 import authRoutes from './routes/auth';
+import monitoringRoutes from './routes/monitoring';
 
 const app = express();
 const PORT = process.env['PORT'] || 5000;
@@ -50,6 +58,12 @@ app.set('trust proxy', 1);
 
 // Request ID middleware (must be first)
 app.use(requestId);
+
+// Logging service middleware
+app.use(loggingServiceMiddleware);
+
+// Monitoring middleware
+app.use(monitoringMiddleware);
 
 // Security middleware
 app.use(helmet({
@@ -89,14 +103,24 @@ app.use('/api/admin', adminLimiter);
 
 // Health check endpoint
 app.get('/health', (req, res) => {
-  res.status(200).json({
+  const healthData = {
     status: 'OK',
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
     environment: process.env['NODE_ENV'] || 'development',
     version: '1.0.0',
     requestId: req.headers['x-request-id'],
+    monitoring: monitoringService.getHealthStatus(),
+  };
+
+  // Log health check
+  logger.info('Health check requested', {
+    requestId: req.headers['x-request-id'] as string,
+    ip: req.ip,
+    userAgent: req.get('User-Agent'),
   });
+
+  res.status(200).json(healthData);
 });
 
 // Setup API documentation
@@ -104,6 +128,7 @@ setupSwagger(app);
 
 // API routes
 app.use('/api/auth', authRoutes);
+app.use('/api/monitoring', monitoringRoutes);
 
 // API root endpoint
 app.get('/api', (req, res) => {
@@ -135,6 +160,13 @@ app.use(errorHandler);
 // Start server only if not in test environment
 if (process.env['NODE_ENV'] !== 'test') {
   const server = app.listen(PORT, () => {
+    logger.info('Server started successfully', {
+      port: PORT,
+      environment: process.env['NODE_ENV'] || 'development',
+      nodeVersion: process.version,
+      pid: process.pid,
+    });
+
     console.log(`🚀 Server running on port ${PORT}`);
     console.log(`📊 Health check: http://localhost:${PORT}/health`);
     console.log(`🔗 API: http://localhost:${PORT}/api`);
@@ -143,21 +175,40 @@ if (process.env['NODE_ENV'] !== 'test') {
   });
 
   // Graceful shutdown
-  const gracefulShutdown = (signal: string) => {
+  const gracefulShutdown = async (signal: string) => {
+    logger.info('Graceful shutdown initiated', { signal });
     console.log(`\n${signal} received. Starting graceful shutdown...`);
     
-    server.close((err) => {
+    server.close(async (err) => {
       if (err) {
+        logger.error('Error during server shutdown', { error: err.message, signal });
         console.error('Error during server shutdown:', err);
         process.exit(1);
       }
       
-      console.log('Server closed successfully');
-      process.exit(0);
+      try {
+        // Shutdown monitoring service
+        monitoringService.shutdown();
+        
+        // Close logger
+        await closeLogger();
+        
+        logger.info('Graceful shutdown completed', { signal });
+        console.log('Server closed successfully');
+        process.exit(0);
+      } catch (shutdownError) {
+        logger.error('Error during graceful shutdown', { 
+          error: shutdownError instanceof Error ? shutdownError.message : 'Unknown error',
+          signal 
+        });
+        console.error('Error during graceful shutdown:', shutdownError);
+        process.exit(1);
+      }
     });
 
     // Force shutdown after 30 seconds
     setTimeout(() => {
+      logger.error('Forced shutdown after timeout', { signal, timeout: '30s' });
       console.error('Forced shutdown after timeout');
       process.exit(1);
     }, 30000);
