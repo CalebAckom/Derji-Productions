@@ -41,10 +41,10 @@ export interface ContactEmailData {
     id: string;
     name: string;
     email: string;
-    phone?: string;
-    subject?: string;
+    phone?: string | null;
+    subject?: string | null;
     message: string;
-    serviceInterest?: string;
+    serviceInterest?: string | null;
   };
 }
 
