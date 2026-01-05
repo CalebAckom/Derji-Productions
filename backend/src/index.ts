@@ -46,6 +46,8 @@ import { setupSwagger } from './config/swagger';
 import authRoutes from './routes/auth';
 import fileRoutes from './routes/files';
 import monitoringRoutes from './routes/monitoring';
+import serviceRoutes from './routes/services';
+import serviceCategoryRoutes from './routes/serviceCategories';
 
 const app = express();
 const PORT = process.env['PORT'] || 5000;
@@ -131,6 +133,8 @@ setupSwagger(app);
 app.use('/api/auth', authRoutes);
 app.use('/api/files', fileRoutes);
 app.use('/api/monitoring', monitoringRoutes);
+app.use('/api/services', serviceRoutes);
+app.use('/api/service-categories', serviceCategoryRoutes);
 
 // API root endpoint
 app.get('/api', (req, res) => {
@@ -145,6 +149,8 @@ app.get('/api', (req, res) => {
       api: '/api',
       auth: '/api/auth',
       files: '/api/files',
+      services: '/api/services',
+      serviceCategories: '/api/service-categories',
       docs: '/api-docs',
     },
     requestId: req.headers['x-request-id'],

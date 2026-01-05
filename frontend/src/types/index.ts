@@ -8,24 +8,39 @@ export interface User {
   role: string;
 }
 
+export interface ServiceCategory {
+  id: string;
+  name: string;
+  slug: string;
+  description?: string;
+  icon?: string;
+  active: boolean;
+  sortOrder: number;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 export interface Service {
   id: string;
   name: string;
-  category: 'photography' | 'videography' | 'sound';
+  categoryId: string;
+  category?: ServiceCategory;
   subcategory?: string;
   description?: string;
   basePrice?: number;
   priceType: 'fixed' | 'hourly' | 'package';
   duration?: number;
-  features?: string[];
+  features?: string[] | Record<string, any>;
   active: boolean;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface PortfolioItem {
   id: string;
   title: string;
   description?: string;
-  category: 'photography' | 'videography' | 'sound';
+  category: 'photography' | 'videography' | 'sound'; // Keep this as is for now since portfolio uses different system
   clientName?: string;
   projectDate?: Date;
   featured: boolean;
@@ -131,10 +146,12 @@ export interface NavigationItem {
 
 // Filter types
 export interface ServiceFilters {
-  category?: string;
+  categoryId?: string;
+  categorySlug?: string;
   subcategory?: string;
   search?: string;
   priceRange?: [number, number];
+  active?: boolean;
 }
 
 export interface PortfolioFilters {
