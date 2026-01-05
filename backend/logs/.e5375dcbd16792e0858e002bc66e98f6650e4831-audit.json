@@ -1,0 +1,15 @@
+{
+    "keep": {
+        "days": true,
+        "amount": 30
+    },
+    "auditLog": "C:\\Users\\caleb.ackom_cellulan\\Desktop\\Workspace\\Derji-Productions\\backend\\logs\\.e5375dcbd16792e0858e002bc66e98f6650e4831-audit.json",
+    "files": [
+        {
+            "date": 1767623522922,
+            "name": "C:\\Users\\caleb.ackom_cellulan\\Desktop\\Workspace\\Derji-Productions\\backend\\logs\\error-2026-01-05.log",
+            "hash": "03317829ceadc2387eebc63105c1e879bfe55a76431064c03cbc78d1f0645aea"
+        }
+    ],
+    "hashType": "sha256"
+}
