@@ -1,0 +1,296 @@
+/* Component Styles for Derji Productions Design System */
+
+@layer components {
+  /* Button Components */
+  .btn {
+    @apply inline-flex items-center justify-center font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .btn-primary {
+    @apply btn bg-primary-500 hover:bg-primary-600 active:bg-primary-700 text-white shadow-md hover:shadow-lg focus:ring-primary-500;
+  }
+
+  .btn-secondary {
+    @apply btn bg-secondary-100 hover:bg-secondary-200 active:bg-secondary-300 text-secondary-900 border border-secondary-300 focus:ring-secondary-500;
+  }
+
+  .btn-outline {
+    @apply btn bg-transparent hover:bg-primary-50 active:bg-primary-100 text-primary-600 border border-primary-500 hover:border-primary-600 focus:ring-primary-500;
+  }
+
+  .btn-ghost {
+    @apply btn bg-transparent hover:bg-secondary-100 active:bg-secondary-200 text-secondary-700 focus:ring-secondary-500;
+  }
+
+  .btn-golden {
+    @apply btn bg-gradient-to-r from-primary-400 to-primary-600 hover:from-primary-500 hover:to-primary-700 text-white shadow-golden hover:shadow-golden-lg focus:ring-primary-500;
+  }
+
+  /* Button Sizes */
+  .btn-xs {
+    @apply px-2 py-1 text-xs rounded-md;
+  }
+
+  .btn-sm {
+    @apply px-3 py-1.5 text-sm rounded-md;
+  }
+
+  .btn-md {
+    @apply px-4 py-2 text-base rounded-lg;
+  }
+
+  .btn-lg {
+    @apply px-6 py-3 text-lg rounded-lg;
+  }
+
+  .btn-xl {
+    @apply px-8 py-4 text-xl rounded-xl;
+  }
+
+  /* Card Components */
+  .card {
+    @apply bg-white rounded-xl shadow-md border border-secondary-200 overflow-hidden;
+  }
+
+  .card-hover {
+    @apply card transition-all duration-300 hover:shadow-lg hover:-translate-y-1;
+  }
+
+  .card-golden {
+    @apply card border-primary-200 shadow-golden hover:shadow-golden-lg;
+  }
+
+  .card-header {
+    @apply px-6 py-4 border-b border-secondary-200 bg-secondary-50;
+  }
+
+  .card-body {
+    @apply px-6 py-4;
+  }
+
+  .card-footer {
+    @apply px-6 py-4 border-t border-secondary-200 bg-secondary-50;
+  }
+
+  /* Input Components */
+  .input {
+    @apply w-full px-3 py-2 text-base border border-secondary-300 rounded-lg bg-white placeholder-secondary-400 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-secondary-100 disabled:cursor-not-allowed;
+  }
+
+  .input-error {
+    @apply input border-error-500 focus:ring-error-500;
+  }
+
+  .input-success {
+    @apply input border-success-500 focus:ring-success-500;
+  }
+
+  .input-golden {
+    @apply input border-primary-300 focus:ring-primary-500 focus:border-primary-500;
+  }
+
+  /* Input Sizes */
+  .input-sm {
+    @apply px-2.5 py-1.5 text-sm rounded-md;
+  }
+
+  .input-lg {
+    @apply px-4 py-3 text-lg rounded-lg;
+  }
+
+  /* Label Components */
+  .label {
+    @apply block text-sm font-medium text-secondary-700 mb-1;
+  }
+
+  .label-required::after {
+    @apply text-error-500 ml-1;
+    content: '*';
+  }
+
+  /* Form Group */
+  .form-group {
+    @apply mb-4;
+  }
+
+  .form-error {
+    @apply text-sm text-error-600 mt-1;
+  }
+
+  .form-help {
+    @apply text-sm text-secondary-500 mt-1;
+  }
+
+  /* Modal Components */
+  .modal-backdrop {
+    @apply fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300;
+    z-index: var(--z-modal-backdrop);
+  }
+
+  .modal {
+    @apply fixed inset-0 flex items-center justify-center p-4;
+    z-index: var(--z-modal);
+  }
+
+  .modal-content {
+    @apply bg-white rounded-xl shadow-2xl max-w-md w-full max-h-screen overflow-y-auto;
+  }
+
+  .modal-header {
+    @apply px-6 py-4 border-b border-secondary-200 flex items-center justify-between;
+  }
+
+  .modal-title {
+    @apply text-lg font-semibold text-secondary-900;
+  }
+
+  .modal-close {
+    @apply text-secondary-400 hover:text-secondary-600 transition-colors duration-200;
+  }
+
+  .modal-body {
+    @apply px-6 py-4;
+  }
+
+  .modal-footer {
+    @apply px-6 py-4 border-t border-secondary-200 flex items-center justify-end space-x-3;
+  }
+
+  /* Loading States */
+  .skeleton {
+    @apply animate-pulse bg-secondary-200 rounded;
+  }
+
+  .skeleton-text {
+    @apply skeleton h-4 mb-2;
+  }
+
+  .skeleton-title {
+    @apply skeleton h-6 mb-4;
+  }
+
+  .skeleton-avatar {
+    @apply skeleton w-10 h-10 rounded-full;
+  }
+
+  .skeleton-image {
+    @apply skeleton w-full h-48;
+  }
+
+  /* Spinner */
+  .spinner {
+    @apply inline-block animate-spin rounded-full border-2 border-solid border-current border-r-transparent motion-reduce:animate-[spin_1.5s_linear_infinite];
+  }
+
+  .spinner-sm {
+    @apply spinner w-4 h-4;
+  }
+
+  .spinner-md {
+    @apply spinner w-6 h-6;
+  }
+
+  .spinner-lg {
+    @apply spinner w-8 h-8;
+  }
+
+  /* Circuit Board Backgrounds */
+  .circuit-bg-light {
+    background-image: var(--circuit-pattern-light);
+  }
+
+  .circuit-bg-medium {
+    background-image: var(--circuit-pattern-medium);
+  }
+
+  .circuit-bg-dark {
+    background-image: var(--circuit-pattern-dark);
+  }
+
+  /* Golden Glow Effects */
+  .glow-golden {
+    @apply shadow-lg;
+    box-shadow: 0 0 20px rgba(245, 158, 11, 0.3);
+  }
+
+  .glow-golden-strong {
+    @apply shadow-xl;
+    box-shadow: 0 0 30px rgba(245, 158, 11, 0.5);
+  }
+
+  /* Gradient Backgrounds */
+  .gradient-golden {
+    @apply bg-gradient-to-r from-primary-400 via-primary-500 to-primary-600;
+  }
+
+  .gradient-golden-subtle {
+    @apply bg-gradient-to-r from-primary-50 via-primary-100 to-primary-200;
+  }
+
+  /* Typography Utilities */
+  .text-gradient-golden {
+    @apply bg-gradient-to-r from-primary-500 to-primary-700 bg-clip-text text-transparent;
+  }
+
+  /* Focus Styles */
+  .focus-golden {
+    @apply focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2;
+  }
+
+  /* Responsive Utilities */
+  .container-responsive {
+    @apply container mx-auto px-4 sm:px-6 lg:px-8;
+  }
+
+  /* Animation Classes */
+  .animate-fade-in {
+    animation: fadeIn 0.5s ease-in-out;
+  }
+
+  .animate-slide-up {
+    animation: slideUp 0.3s ease-out;
+  }
+
+  .animate-pulse-golden {
+    animation: pulseGolden 2s infinite;
+  }
+
+  /* Hover Effects */
+  .hover-lift {
+    @apply transition-transform duration-200 hover:-translate-y-1;
+  }
+
+  .hover-glow {
+    @apply transition-shadow duration-300 hover:glow-golden;
+  }
+}
+
+/* Keyframes */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(10px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes pulseGolden {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(245, 158, 11, 0);
+  }
+}
