@@ -1,27 +1,31 @@
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import { Service, ServiceFilters } from '../types';
 import { useGet, usePost, usePut, useDelete } from './useApi';
 import { get } from '../utils/api';
 
 // Hook for fetching all services
 export function useServices(filters?: ServiceFilters) {
-  const queryParams = new URLSearchParams();
+  const queryString = useMemo(() => {
+    const queryParams = new URLSearchParams();
+    
+    if (filters?.categoryId) queryParams.append('categoryId', filters.categoryId);
+    if (filters?.categorySlug) queryParams.append('categorySlug', filters.categorySlug);
+    if (filters?.subcategory) queryParams.append('subcategory', filters.subcategory);
+    if (filters?.search) queryParams.append('search', filters.search);
+    if (filters?.active !== undefined) queryParams.append('active', filters.active.toString());
+    if (filters?.priceRange) {
+      queryParams.append('minPrice', filters.priceRange[0].toString());
+      queryParams.append('maxPrice', filters.priceRange[1].toString());
+    }
+    
+    return queryParams.toString();
+  }, [filters?.categoryId, filters?.categorySlug, filters?.subcategory, filters?.search, filters?.active, filters?.priceRange]);
   
-  if (filters?.categoryId) queryParams.append('categoryId', filters.categoryId);
-  if (filters?.categorySlug) queryParams.append('categorySlug', filters.categorySlug);
-  if (filters?.subcategory) queryParams.append('subcategory', filters.subcategory);
-  if (filters?.search) queryParams.append('search', filters.search);
-  if (filters?.active !== undefined) queryParams.append('active', filters.active.toString());
-  if (filters?.priceRange) {
-    queryParams.append('minPrice', filters.priceRange[0].toString());
-    queryParams.append('maxPrice', filters.priceRange[1].toString());
-  }
-  
-  const url = `/services${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
+  const url = `/services${queryString ? `?${queryString}` : ''}`;
   
   const result = useGet<{ services: Service[]; pagination?: any }>(url, {
     immediate: true,
-    cacheKey: `services_${queryParams.toString()}`,
+    cacheKey: `services_${queryString}`,
     cacheDuration: 2 * 60 * 1000, // 2 minutes cache for services
   });
 

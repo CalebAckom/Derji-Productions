@@ -56,11 +56,7 @@ const BookingForm: React.FC<BookingFormProps> = ({
 
   const { data: services, loading: servicesLoading } = useServices({ active: true });
   const servicesList = Array.isArray(services) ? services : [];
-  const { data: availability = null, loading: availabilityLoading } = useBookingAvailability(
-    selectedDate || undefined
-  );
-  const { execute: createBooking, loading: submitting, error: submitError } = useCreateBooking();
-
+  
   const {
     register,
     handleSubmit,
@@ -89,6 +85,12 @@ const BookingForm: React.FC<BookingFormProps> = ({
   const watchedServiceId = watch('serviceId');
   const watchedDate = watch('bookingDate');
   const watchedStartTime = watch('startTime');
+
+  const { data: availability = null, loading: availabilityLoading } = useBookingAvailability(
+    selectedDate && watchedServiceId ? selectedDate : undefined,
+    watchedServiceId || undefined
+  );
+  const { execute: createBooking, loading: submitting, error: submitError } = useCreateBooking();
 
   // Update selected date when form date changes
   useEffect(() => {

@@ -1,6 +1,7 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useAppContext } from '../context/AppContext';
 import { get, post, put, del } from '../utils/api';
+import { dedupeRequest } from '../utils/debounce';
 
 // Generic API hook interface
 interface UseApiOptions<T> {
@@ -30,15 +31,17 @@ export function useApi<T>(
     immediate = false,
     cacheKey,
     cacheDuration = 5 * 60 * 1000, // 5 minutes default
-    optimistic = false,
   } = options;
   
   const { getCache, setCache, setError: setGlobalError } = useAppContext();
   
   const [data, setData] = useState<T | null>(initialData);
-  const [loading, setLoading] = useState(immediate); // Set initial loading state based on immediate
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [lastArgs, setLastArgs] = useState<any[]>([]);
+  const hasExecutedRef = useRef(false);
+  const mountedRef = useRef(true);
+  const executingRef = useRef(false); // Prevent concurrent executions
   
   // Check cache on mount
   useEffect(() => {
@@ -46,38 +49,63 @@ export function useApi<T>(
       const cached = getCache(cacheKey);
       if (cached && cached.timestamp && Date.now() - cached.timestamp < cacheDuration) {
         setData(cached.data);
+        hasExecutedRef.current = true; // Mark as executed to prevent immediate execution
       }
     }
   }, [cacheKey, cacheDuration, getCache]);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
   
   const execute = useCallback(async (...args: any[]): Promise<T> => {
-    try {
-      setLoading(true);
-      setError(null);
-      setLastArgs(args);
-      
-      const result = await apiFunction(...args);
-      
-      setData(result);
-      
-      // Cache the result if cacheKey is provided
-      if (cacheKey) {
-        setCache(cacheKey, {
-          data: result,
-          timestamp: Date.now(),
-        });
-      }
-      
-      return result;
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'An error occurred';
-      setError(errorMessage);
-      setGlobalError(errorMessage);
-      throw err;
-    } finally {
-      setLoading(false);
+    if (!mountedRef.current || executingRef.current) {
+      return Promise.reject(new Error('Component unmounted or already executing'));
     }
-  }, [apiFunction, cacheKey, setCache, setGlobalError, optimistic]); // Include optimistic in dependencies
+    
+    // Create a unique key for request deduplication
+    const requestKey = `${cacheKey || 'api'}_${JSON.stringify(args)}`;
+    
+    return dedupeRequest(requestKey, async () => {
+      try {
+        executingRef.current = true;
+        setLoading(true);
+        setError(null);
+        setLastArgs(args);
+        
+        const result = await apiFunction(...args);
+        
+        if (mountedRef.current) {
+          setData(result);
+          
+          // Cache the result if cacheKey is provided
+          if (cacheKey) {
+            setCache(cacheKey, {
+              data: result,
+              timestamp: Date.now(),
+            });
+          }
+        }
+        
+        return result;
+      } catch (err) {
+        if (mountedRef.current) {
+          const errorMessage = err instanceof Error ? err.message : 'An error occurred';
+          setError(errorMessage);
+          setGlobalError(errorMessage);
+        }
+        throw err;
+      } finally {
+        if (mountedRef.current) {
+          setLoading(false);
+        }
+        executingRef.current = false;
+      }
+    }, 500); // 500ms deduplication window
+  }, [apiFunction, cacheKey, setCache, setGlobalError]); // Remove optimistic from dependencies
   
   const refresh = useCallback(async (): Promise<T> => {
     return execute(...lastArgs);
@@ -90,9 +118,10 @@ export function useApi<T>(
     setLastArgs([]);
   }, [initialData]);
   
-  // Execute immediately if requested
+  // Execute immediately if requested and not already executed
   useEffect(() => {
-    if (immediate) {
+    if (immediate && !hasExecutedRef.current && mountedRef.current) {
+      hasExecutedRef.current = true;
       execute();
     }
   }, [immediate, execute]);

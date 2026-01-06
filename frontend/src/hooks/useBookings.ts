@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import { Booking, BookingFormData } from '@/types';
 import { useGet, usePost, usePut, useDelete } from './useApi';
 import { get, post } from '@/utils/api';
@@ -13,11 +13,14 @@ interface TimeSlot {
 
 // Hook for fetching booking availability
 export function useBookingAvailability(date?: Date, serviceId?: string) {
-  const queryParams = new URLSearchParams();
-  if (date) queryParams.append('date', date.toISOString().split('T')[0]);
-  if (serviceId) queryParams.append('serviceId', serviceId);
+  const queryString = useMemo(() => {
+    const queryParams = new URLSearchParams();
+    if (date) queryParams.append('date', date.toISOString().split('T')[0]);
+    if (serviceId) queryParams.append('serviceId', serviceId);
+    return queryParams.toString();
+  }, [date?.toISOString().split('T')[0], serviceId]);
   
-  const url = `/bookings/availability${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
+  const url = `/bookings/availability${queryString ? `?${queryString}` : ''}`;
   
   const result = useGet<{
     date: string;
@@ -28,8 +31,8 @@ export function useBookingAvailability(date?: Date, serviceId?: string) {
     bookedSlots: any[];
     summary: any;
   }>(url, {
-    immediate: !!(date || serviceId),
-    cacheKey: `availability_${queryParams.toString()}`,
+    immediate: !!(date && serviceId), // Only fetch when we have both date and serviceId
+    cacheKey: `availability_${queryString}`,
     cacheDuration: 1 * 60 * 1000, // 1 minute cache for availability
   });
 
