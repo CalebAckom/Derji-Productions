@@ -1,8 +1,41 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Button, Card, CardBody } from '../components/ui';
 import Breadcrumb from '../components/navigation/Breadcrumb';
+import { BookingForm } from '../components/booking';
 
 const BookPage: React.FC = () => {
+  const [showBookingForm, setShowBookingForm] = useState(false);
+  const [selectedServiceId, setSelectedServiceId] = useState<string>('');
+
+  const handleServiceSelect = (_serviceType: string) => {
+    // In a real implementation, you'd map service types to actual service IDs
+    // For now, we'll just show the form
+    setSelectedServiceId(''); // This would be the actual service ID
+    setShowBookingForm(true);
+  };
+
+  const handleBookingSuccess = (booking: any) => {
+    console.log('Booking successful:', booking);
+    // Could show a success message or redirect
+  };
+
+  const handleBookingCancel = () => {
+    setShowBookingForm(false);
+    setSelectedServiceId('');
+  };
+
+  if (showBookingForm) {
+    return (
+      <div className="space-y-8">
+        <Breadcrumb />
+        <BookingForm
+          initialServiceId={selectedServiceId}
+          onSuccess={handleBookingSuccess}
+          onCancel={handleBookingCancel}
+        />
+      </div>
+    );
+  }
   return (
     <div className="space-y-8">
       <Breadcrumb />
@@ -41,7 +74,7 @@ const BookPage: React.FC = () => {
                 <p className="body-normal text-secondary-600 mb-6">
                   Book a photography session for weddings, events, portraits, or commercial projects.
                 </p>
-                <Button variant="golden" className="w-full">Book Photography</Button>
+                <Button variant="golden" className="w-full" onClick={() => handleServiceSelect('photography')}>Book Photography</Button>
               </CardBody>
             </Card>
 
@@ -56,7 +89,7 @@ const BookPage: React.FC = () => {
                 <p className="body-normal text-secondary-600 mb-6">
                   Schedule video production, live streaming, or post-production services.
                 </p>
-                <Button variant="golden" className="w-full">Book Videography</Button>
+                <Button variant="golden" className="w-full" onClick={() => handleServiceSelect('videography')}>Book Videography</Button>
               </CardBody>
             </Card>
 

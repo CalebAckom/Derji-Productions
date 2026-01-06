@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import { Booking, BookingFormData } from '@/types';
 import { useGet, usePost, usePut, useDelete } from './useApi';
 import { get, post } from '@/utils/api';
@@ -11,24 +11,39 @@ interface TimeSlot {
   serviceTypes: string[];
 }
 
-interface AvailabilityResponse {
-  date: string;
-  slots: TimeSlot[];
-}
-
 // Hook for fetching booking availability
 export function useBookingAvailability(date?: Date, serviceId?: string) {
-  const queryParams = new URLSearchParams();
-  if (date) queryParams.append('date', date.toISOString().split('T')[0]);
-  if (serviceId) queryParams.append('serviceId', serviceId);
+  const queryString = useMemo(() => {
+    const queryParams = new URLSearchParams();
+    if (date) queryParams.append('date', date.toISOString().split('T')[0]);
+    if (serviceId) queryParams.append('serviceId', serviceId);
+    return queryParams.toString();
+  }, [date?.toISOString().split('T')[0], serviceId]);
   
-  const url = `/bookings/availability${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
+  const url = `/bookings/availability${queryString ? `?${queryString}` : ''}`;
   
-  return useGet<AvailabilityResponse>(url, {
-    immediate: !!(date || serviceId),
-    cacheKey: `availability_${queryParams.toString()}`,
+  const result = useGet<{
+    date: string;
+    serviceId?: string;
+    duration: number;
+    businessHours: any;
+    availableSlots: TimeSlot[];
+    bookedSlots: any[];
+    summary: any;
+  }>(url, {
+    immediate: !!(date && serviceId), // Only fetch when we have both date and serviceId
+    cacheKey: `availability_${queryString}`,
     cacheDuration: 1 * 60 * 1000, // 1 minute cache for availability
   });
+
+  // Transform the result to match the expected format
+  return {
+    ...result,
+    data: result.data ? {
+      date: result.data.date,
+      slots: result.data.availableSlots,
+    } : null,
+  };
 }
 
 // Hook for fetching all bookings (admin)
@@ -64,9 +79,18 @@ export function useBooking(id: string) {
 
 // Hook for creating bookings
 export function useCreateBooking() {
-  return usePost<BookingFormData, Booking>('/bookings', {
+  const result = usePost<BookingFormData, { booking: Booking }>('/bookings', {
     optimistic: false, // Don't use optimistic updates for bookings due to availability constraints
   });
+
+  // Transform the result to return just the booking
+  return {
+    ...result,
+    execute: async (data: BookingFormData) => {
+      const response = await result.execute(data);
+      return response.booking;
+    },
+  };
 }
 
 // Hook for updating booking status (admin)
