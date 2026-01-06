@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
-import { Service, ServiceFilters } from '@/types';
+import { Service, ServiceFilters } from '../types';
 import { useGet, usePost, usePut, useDelete } from './useApi';
-import { get } from '@/utils/api';
+import { get } from '../utils/api';
 
 // Hook for fetching all services
 export function useServices(filters?: ServiceFilters) {
