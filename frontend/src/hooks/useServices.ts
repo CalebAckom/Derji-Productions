@@ -19,11 +19,17 @@ export function useServices(filters?: ServiceFilters) {
   
   const url = `/services${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
   
-  return useGet<Service[]>(url, {
+  const result = useGet<{ services: Service[]; pagination?: any }>(url, {
     immediate: true,
     cacheKey: `services_${queryParams.toString()}`,
     cacheDuration: 2 * 60 * 1000, // 2 minutes cache for services
   });
+
+  // Transform the result to return just the services array
+  return {
+    ...result,
+    data: result.data?.services || null,
+  };
 }
 
 // Hook for fetching a single service
