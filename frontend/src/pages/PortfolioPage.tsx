@@ -1,34 +1,29 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Button, Card, CardBody } from '../components/ui';
 import Breadcrumb from '../components/navigation/Breadcrumb';
-
-type FilterCategory = 'all' | 'photography' | 'videography' | 'sound';
+import { PortfolioItem, MediaGallery, PortfolioFilters } from '../components/portfolio';
+import { usePortfolio } from '../hooks/usePortfolio';
+import { PortfolioFilters as PortfolioFiltersType } from '../types';
 
 const PortfolioPage: React.FC = () => {
-  const [activeFilter, setActiveFilter] = useState<FilterCategory>('all');
+  const [filters, setFilters] = useState<PortfolioFiltersType>({});
+  const [viewMode, setViewMode] = useState<'grid' | 'gallery'>('grid');
+  
+  const { data: portfolioItems, loading, error } = usePortfolio(filters);
 
-  const portfolioItems = [
-    { id: 1, title: 'Wedding at Sunset Beach', category: 'photography', type: 'Wedding', client: 'Sarah & John' },
-    { id: 2, title: 'Corporate Conference 2024', category: 'videography', type: 'Corporate', client: 'Tech Corp' },
-    { id: 3, title: 'Podcast Studio Session', category: 'sound', type: 'Podcast', client: 'Creative Minds' },
-    { id: 4, title: 'Birthday Celebration', category: 'photography', type: 'Birthday', client: 'Johnson Family' },
-    { id: 5, title: 'Live Event Stream', category: 'videography', type: 'Live Stream', client: 'Music Festival' },
-    { id: 6, title: 'Church Service Audio', category: 'sound', type: 'Live Sound', client: 'Community Church' },
-    { id: 7, title: 'Graduation Ceremony', category: 'photography', type: 'Graduation', client: 'University' },
-    { id: 8, title: 'Product Launch Video', category: 'videography', type: 'Commercial', client: 'StartupXYZ' },
-    { id: 9, title: 'Travel Documentary', category: 'photography', type: 'Travel', client: 'Adventure Co' },
-  ];
+  // Extract available tags from portfolio items for filter options
+  const availableTags = useMemo(() => {
+    if (!portfolioItems) return [];
+    const tagSet = new Set<string>();
+    portfolioItems.forEach(item => {
+      item.tags?.forEach(tag => tagSet.add(tag));
+    });
+    return Array.from(tagSet).sort();
+  }, [portfolioItems]);
 
-  const filteredItems = activeFilter === 'all' 
-    ? portfolioItems 
-    : portfolioItems.filter(item => item.category === activeFilter);
-
-  const filterButtons: { key: FilterCategory; label: string }[] = [
-    { key: 'all', label: 'All Work' },
-    { key: 'photography', label: 'Photography' },
-    { key: 'videography', label: 'Videography' },
-    { key: 'sound', label: 'Sound Production' },
-  ];
+  const handleFiltersChange = (newFilters: PortfolioFiltersType) => {
+    setFilters(newFilters);
+  };
 
   return (
     <div className="space-y-8">
@@ -46,65 +41,102 @@ const PortfolioPage: React.FC = () => {
           </div>
         </section>
 
-        {/* Filter Buttons */}
+        {/* Filters */}
         <section>
-          <div className="flex flex-wrap justify-center gap-4 mb-12">
-            {filterButtons.map((filter) => (
+          <PortfolioFilters
+            filters={filters}
+            onFiltersChange={handleFiltersChange}
+            availableTags={availableTags}
+            className="mb-8"
+          />
+
+          {/* View Mode Toggle */}
+          <div className="flex items-center justify-between mb-8">
+            <div className="flex items-center space-x-2">
+              <span className="text-sm text-secondary-600">View:</span>
               <Button
-                key={filter.key}
-                variant={activeFilter === filter.key ? 'golden' : 'outline'}
-                onClick={() => setActiveFilter(filter.key)}
-                className="transition-all duration-200"
+                variant={viewMode === 'grid' ? 'golden' : 'outline'}
+                size="sm"
+                onClick={() => setViewMode('grid')}
               >
-                {filter.label}
+                <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                </svg>
+                Grid
               </Button>
-            ))}
-          </div>
-
-          {/* Portfolio Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {filteredItems.map((item) => (
-              <Card key={item.id} variant="hover" className="group cursor-pointer">
-                <div className="aspect-square bg-gradient-to-br from-secondary-200 to-primary-100 rounded-t-lg overflow-hidden">
-                  <div className="w-full h-full flex items-center justify-center bg-secondary-300/50 group-hover:bg-secondary-300/30 transition-colors">
-                    <div className="text-center">
-                      <div className="w-16 h-16 bg-primary-500 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:shadow-glow transition-all duration-300">
-                        {item.category === 'photography' && (
-                          <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
-                          </svg>
-                        )}
-                        {item.category === 'videography' && (
-                          <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                          </svg>
-                        )}
-                        {item.category === 'sound' && (
-                          <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
-                          </svg>
-                        )}
-                      </div>
-                      <span className="text-secondary-600 font-medium capitalize">{item.category}</span>
-                    </div>
-                  </div>
-                </div>
-                <CardBody className="p-6">
-                  <h3 className="heading-card text-secondary-900 mb-2">{item.title}</h3>
-                  <div className="flex justify-between items-center text-sm text-secondary-600">
-                    <span className="bg-primary-100 text-primary-700 px-2 py-1 rounded-full">{item.type}</span>
-                    <span>{item.client}</span>
-                  </div>
-                </CardBody>
-              </Card>
-            ))}
-          </div>
-
-          {filteredItems.length === 0 && (
-            <div className="text-center py-16">
-              <p className="body-large text-secondary-600">No items found for the selected category.</p>
+              <Button
+                variant={viewMode === 'gallery' ? 'golden' : 'outline'}
+                size="sm"
+                onClick={() => setViewMode('gallery')}
+              >
+                <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                Gallery
+              </Button>
             </div>
+            
+            {portfolioItems && (
+              <span className="text-sm text-secondary-600">
+                {portfolioItems.length} item{portfolioItems.length !== 1 ? 's' : ''} found
+              </span>
+            )}
+          </div>
+
+          {/* Loading State */}
+          {loading && (
+            <div className="flex items-center justify-center py-12">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500"></div>
+            </div>
+          )}
+
+          {/* Error State */}
+          {error && (
+            <div className="text-center py-12">
+              <svg className="w-16 h-16 text-error-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+              </svg>
+              <h3 className="text-lg font-medium text-error-600 mb-2">Error Loading Portfolio</h3>
+              <p className="text-error-500 mb-4">{error}</p>
+              <Button variant="outline" onClick={() => window.location.reload()}>
+                Try Again
+              </Button>
+            </div>
+          )}
+
+          {/* Portfolio Content */}
+          {!loading && !error && portfolioItems && (
+            <>
+              {viewMode === 'grid' ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                  {portfolioItems.map((item) => (
+                    <PortfolioItem
+                      key={item.id}
+                      item={item}
+                      showDetails={true}
+                      lazy={true}
+                    />
+                  ))}
+                </div>
+              ) : (
+                <MediaGallery
+                  items={portfolioItems}
+                  columns={3}
+                  gap="md"
+                  lazy={true}
+                />
+              )}
+
+              {portfolioItems.length === 0 && (
+                <div className="text-center py-16">
+                  <svg className="w-16 h-16 text-secondary-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                  <h3 className="text-lg font-medium text-secondary-600 mb-2">No portfolio items found</h3>
+                  <p className="text-secondary-500">Try adjusting your filters to see more results.</p>
+                </div>
+              )}
+            </>
           )}
         </section>
 
