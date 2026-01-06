@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useAppContext } from '@/context/AppContext';
-import { get, post, put, del } from '@/utils/api';
+import { useAppContext } from '../context/AppContext';
+import { get, post, put, del } from '../utils/api';
 
 // Generic API hook interface
 interface UseApiOptions<T> {
@@ -36,7 +36,7 @@ export function useApi<T>(
   const { getCache, setCache, setError: setGlobalError } = useAppContext();
   
   const [data, setData] = useState<T | null>(initialData);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(immediate); // Set initial loading state based on immediate
   const [error, setError] = useState<string | null>(null);
   const [lastArgs, setLastArgs] = useState<any[]>([]);
   

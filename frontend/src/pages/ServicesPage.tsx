@@ -1,9 +1,19 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
-import { Button, Card, CardBody } from '../components/ui';
+import { Link, useNavigate } from 'react-router-dom';
+import { Button } from '../components/ui';
+import { ServiceCatalog } from '../components/services';
 import Breadcrumb from '../components/navigation/Breadcrumb';
+import { Service } from '../types';
 
 const ServicesPage: React.FC = () => {
+  const navigate = useNavigate();
+
+  const handleServiceSelect = (service: Service) => {
+    // Navigate to service detail page or open booking modal
+    // For now, we'll navigate to the booking page with the service pre-selected
+    navigate('/book', { state: { selectedService: service } });
+  };
+
   return (
     <div className="space-y-8">
       <Breadcrumb />
@@ -11,124 +21,40 @@ const ServicesPage: React.FC = () => {
       <div className="space-y-16">
         {/* Hero Section */}
         <section className="text-center py-16 bg-gradient-to-br from-secondary-50 to-primary-50 rounded-2xl relative overflow-hidden">
-          <div className="absolute inset-0 bg-circuit-pattern opacity-5"></div>
+          <div className="absolute inset-0 circuit-bg-light"></div>
           <div className="relative z-10">
-            <h1 className="heading-hero text-secondary-900 mb-6">Our Services</h1>
-            <p className="body-large text-secondary-600 max-w-3xl mx-auto">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-secondary-900 mb-6">Our Services</h1>
+            <p className="text-lg md:text-xl text-secondary-600 max-w-3xl mx-auto">
               Comprehensive media production services designed to bring your vision to life with professional quality and creative excellence.
             </p>
           </div>
         </section>
 
-        {/* Photography Services */}
+        {/* Service Catalog */}
         <section>
-          <div className="mb-12">
-            <h2 className="heading-section text-secondary-900 mb-4">Photography</h2>
-            <p className="body-large text-secondary-600 max-w-3xl">
-              Capturing life's precious moments with artistic vision and technical precision across various photography specialties.
+          <div className="mb-8">
+            <h2 className="text-2xl md:text-3xl font-bold text-secondary-900 mb-4">Browse Our Services</h2>
+            <p className="text-lg text-secondary-600 max-w-3xl">
+              Explore our comprehensive range of photography, videography, and sound production services. 
+              Use the filters to find exactly what you need, or compare services to make the best choice for your project.
             </p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-            {[
-              { name: 'Wedding Photography', description: 'Romantic and timeless wedding photography that captures every precious moment of your special day.' },
-              { name: 'Corporate Events', description: 'Professional corporate photography for conferences, meetings, and business events.' },
-              { name: 'Portrait Sessions', description: 'Individual and family portraits that showcase personality and create lasting memories.' },
-              { name: 'Birthday Celebrations', description: 'Fun and vibrant birthday party photography for all ages and celebrations.' },
-              { name: 'Graduation Ceremonies', description: 'Commemorative graduation photography to celebrate academic achievements.' },
-              { name: 'Church Events', description: 'Respectful and meaningful photography for religious ceremonies and church events.' },
-              { name: 'Travel & Outing', description: 'Adventure and travel photography that captures the spirit of exploration.' },
-              { name: 'Studio Photography', description: 'Controlled studio environment for professional headshots and product photography.' },
-              { name: 'Drone Aerial Shots', description: 'Stunning aerial photography using professional drone equipment.' },
-            ].map((service, index) => (
-              <Card key={index} variant="hover">
-                <CardBody className="p-6">
-                  <h3 className="heading-card text-primary-600 mb-3">{service.name}</h3>
-                  <p className="body-normal text-secondary-600">{service.description}</p>
-                </CardBody>
-              </Card>
-            ))}
-          </div>
-          
-          <div className="text-center">
-            <Link to="/services/photography">
-              <Button variant="golden">Explore Photography Services</Button>
-            </Link>
-          </div>
-        </section>
-
-        {/* Videography Services */}
-        <section className="py-16 bg-secondary-50 rounded-2xl">
-          <div className="mb-12">
-            <h2 className="heading-section text-secondary-900 mb-4">Videography</h2>
-            <p className="body-large text-secondary-600 max-w-3xl">
-              Professional video production services from concept to final delivery, including live streaming and post-production.
-            </p>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-            {[
-              { name: 'Live Streaming', description: 'Professional live streaming services for events, conferences, and online broadcasts with multi-camera setups.' },
-              { name: 'Post-Production', description: 'Complete video editing, color grading, and post-production services to polish your content.' },
-              { name: 'Podcast Production', description: 'Full podcast video production including multi-camera setups and professional editing.' },
-              { name: 'Drone Coverage', description: 'Cinematic aerial videography using professional drone equipment for stunning perspectives.' },
-              { name: 'Consultation & Training', description: 'Expert consultation and training services for video production techniques and equipment.' },
-            ].map((service, index) => (
-              <Card key={index} variant="hover">
-                <CardBody className="p-6">
-                  <h3 className="heading-card text-primary-600 mb-3">{service.name}</h3>
-                  <p className="body-normal text-secondary-600">{service.description}</p>
-                </CardBody>
-              </Card>
-            ))}
-          </div>
-          
-          <div className="text-center">
-            <Link to="/services/videography">
-              <Button variant="golden">Explore Videography Services</Button>
-            </Link>
-          </div>
-        </section>
-
-        {/* Sound Production Services */}
-        <section>
-          <div className="mb-12">
-            <h2 className="heading-section text-secondary-900 mb-4">Sound Production</h2>
-            <p className="body-large text-secondary-600 max-w-3xl">
-              High-quality audio recording, sound engineering, and post-production services for various media projects.
-            </p>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-            {[
-              { name: 'Live Sound Production', description: 'Professional live sound engineering for events, concerts, and performances with high-quality equipment.' },
-              { name: 'Post Sound Production', description: 'Audio post-production including mixing, mastering, and sound design for various media projects.' },
-              { name: 'Podcast Audio', description: 'Complete podcast audio production from recording to final mastering with professional quality.' },
-              { name: 'Consultation & Training', description: 'Expert audio consultation and training for sound engineering techniques and equipment setup.' },
-            ].map((service, index) => (
-              <Card key={index} variant="hover">
-                <CardBody className="p-6">
-                  <h3 className="heading-card text-primary-600 mb-3">{service.name}</h3>
-                  <p className="body-normal text-secondary-600">{service.description}</p>
-                </CardBody>
-              </Card>
-            ))}
-          </div>
-          
-          <div className="text-center">
-            <Link to="/services/sound">
-              <Button variant="golden">Explore Sound Services</Button>
-            </Link>
-          </div>
+          <ServiceCatalog
+            showFilters={true}
+            showComparison={true}
+            layout="grid"
+            onServiceSelect={handleServiceSelect}
+          />
         </section>
 
         {/* Process Section */}
         <section className="py-16 bg-gradient-to-r from-primary-500 to-primary-600 rounded-2xl text-white relative overflow-hidden">
-          <div className="absolute inset-0 bg-circuit-pattern opacity-20"></div>
+          <div className="absolute inset-0 circuit-bg-dark"></div>
           <div className="relative z-10">
             <div className="text-center mb-12">
-              <h2 className="heading-section mb-4">Our Process</h2>
-              <p className="body-large opacity-90 max-w-2xl mx-auto">
+              <h2 className="text-2xl md:text-3xl font-bold mb-4">Our Process</h2>
+              <p className="text-lg opacity-90 max-w-2xl mx-auto">
                 We follow a proven process to ensure every project meets our high standards and exceeds your expectations.
               </p>
             </div>
@@ -154,8 +80,8 @@ const ServicesPage: React.FC = () => {
 
         {/* CTA Section */}
         <section className="text-center py-16">
-          <h2 className="heading-section text-secondary-900 mb-4">Ready to Get Started?</h2>
-          <p className="body-large text-secondary-600 mb-8 max-w-2xl mx-auto">
+          <h2 className="text-2xl md:text-3xl font-bold text-secondary-900 mb-4">Ready to Get Started?</h2>
+          <p className="text-lg text-secondary-600 mb-8 max-w-2xl mx-auto">
             Let's discuss your project and create something amazing together. Book a consultation to get started.
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-4">
