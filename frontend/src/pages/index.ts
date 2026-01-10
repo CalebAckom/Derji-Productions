@@ -5,3 +5,14 @@ export { default as PortfolioPage } from './PortfolioPage';
 export { default as BookPage } from './BookPage';
 export { default as ContactPage } from './ContactPage';
 export { default as LocationPage } from './LocationPage';
+
+// Admin Pages
+export {
+  AdminLoginPage,
+  AdminDashboardPage,
+  PortfolioManagementPage,
+  BookingManagementPage,
+  InquiryManagementPage,
+  UserManagementPage,
+  AnalyticsPage
+} from './admin';

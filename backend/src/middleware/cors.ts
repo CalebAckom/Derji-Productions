@@ -75,6 +75,7 @@ export const corsOptions: cors.CorsOptions = {
     'X-API-Key',
     'Cache-Control',
     'Pragma',
+    'Expires'
   ],
   
   exposedHeaders: [
