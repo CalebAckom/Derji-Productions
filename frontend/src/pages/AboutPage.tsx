@@ -1,8 +1,87 @@
 import React from 'react';
 import { Card, CardBody } from '../components/ui';
 import Breadcrumb from '../components/navigation/Breadcrumb';
+import { TeamMember, TestimonialsCarousel, TeamMemberData, TestimonialData } from '../components/about';
 
 const AboutPage: React.FC = () => {
+  // Team members data
+  const teamMembers: TeamMemberData[] = [
+    {
+      id: '1',
+      name: 'John Derji',
+      role: 'Founder & Creative Director',
+      expertise: ['Photography', 'Creative Vision', 'Project Management'],
+      bio: 'With over 10 years of experience in professional photography and creative direction, John founded Derji Productions with a vision to create exceptional visual content that tells compelling stories.',
+      email: 'john@derjiproductions.com',
+      socialLinks: {
+        linkedin: 'https://linkedin.com/in/johnderji',
+        instagram: 'https://instagram.com/johnderji',
+      }
+    },
+    {
+      id: '2',
+      name: 'Sarah Johnson',
+      role: 'Lead Videographer',
+      expertise: ['Video Production', 'Post-Production', 'Drone Operations'],
+      bio: 'Sarah brings cinematic expertise to every project, specializing in corporate videos, documentaries, and event coverage. Her attention to detail and storytelling ability make every video memorable.',
+      email: 'sarah@derjiproductions.com',
+      socialLinks: {
+        linkedin: 'https://linkedin.com/in/sarahjohnson',
+        instagram: 'https://instagram.com/sarahjohnson',
+      }
+    },
+    {
+      id: '3',
+      name: 'Mike Chen',
+      role: 'Sound Engineer',
+      expertise: ['Audio Recording', 'Sound Design', 'Live Sound'],
+      bio: 'Mike is our audio specialist with expertise in both studio recording and live sound production. He ensures every project has crystal-clear audio that enhances the overall experience.',
+      email: 'mike@derjiproductions.com',
+      socialLinks: {
+        linkedin: 'https://linkedin.com/in/mikechen',
+      }
+    },
+  ];
+
+  // Testimonials data
+  const testimonials: TestimonialData[] = [
+    {
+      id: '1',
+      name: 'Emily Rodriguez',
+      role: 'Bride',
+      company: 'Wedding Client',
+      content: 'Derji Productions captured our wedding day perfectly! Every moment was beautifully documented, and the team was so professional and unobtrusive. We couldn\'t be happier with the results.',
+      rating: 5,
+      projectType: 'Wedding Photography',
+    },
+    {
+      id: '2',
+      name: 'David Thompson',
+      role: 'Marketing Director',
+      company: 'TechStart Inc.',
+      content: 'The corporate video Derji Productions created for our product launch exceeded all expectations. Their creative approach and technical expertise helped us tell our story in a compelling way.',
+      rating: 5,
+      projectType: 'Corporate Video',
+    },
+    {
+      id: '3',
+      name: 'Lisa Park',
+      role: 'Event Coordinator',
+      company: 'Park Events',
+      content: 'I\'ve worked with many production companies, but Derji Productions stands out for their professionalism, creativity, and ability to deliver under tight deadlines. Highly recommended!',
+      rating: 5,
+      projectType: 'Event Coverage',
+    },
+    {
+      id: '4',
+      name: 'James Wilson',
+      role: 'Podcast Host',
+      company: 'The Business Hour',
+      content: 'The audio quality and production value Derji Productions brought to our podcast was incredible. Mike\'s expertise in sound engineering really elevated our content.',
+      rating: 5,
+      projectType: 'Podcast Production',
+    },
+  ];
   return (
     <div className="space-y-8">
       <Breadcrumb />
@@ -104,24 +183,28 @@ const AboutPage: React.FC = () => {
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {/* Team member placeholders */}
-            {[
-              { name: 'John Derji', role: 'Founder & Creative Director', expertise: 'Photography, Creative Vision' },
-              { name: 'Sarah Johnson', role: 'Lead Videographer', expertise: 'Video Production, Post-Production' },
-              { name: 'Mike Chen', role: 'Sound Engineer', expertise: 'Audio Recording, Sound Design' },
-            ].map((member, index) => (
-              <Card key={index} variant="hover">
-                <CardBody className="text-center p-6">
-                  <div className="w-24 h-24 bg-gradient-to-br from-secondary-200 to-primary-100 rounded-full mx-auto mb-4 flex items-center justify-center">
-                    <span className="text-secondary-600 font-medium text-sm">Photo</span>
-                  </div>
-                  <h3 className="heading-card text-secondary-900 mb-2">{member.name}</h3>
-                  <p className="text-primary-600 font-medium mb-2">{member.role}</p>
-                  <p className="body-small text-secondary-600">{member.expertise}</p>
-                </CardBody>
-              </Card>
+            {teamMembers.map((member) => (
+              <TeamMember key={member.id} member={member} />
             ))}
           </div>
+        </section>
+
+        {/* Testimonials Section */}
+        <section className="py-16 bg-secondary-50 rounded-2xl">
+          <div className="text-center mb-12">
+            <h2 className="heading-section text-secondary-900 mb-4">What Our Clients Say</h2>
+            <p className="body-large text-secondary-600 max-w-2xl mx-auto">
+              Don't just take our word for it. Here's what our clients have to say about working with us.
+            </p>
+          </div>
+          
+          <TestimonialsCarousel 
+            testimonials={testimonials}
+            autoPlay={true}
+            autoPlayInterval={6000}
+            showDots={true}
+            showArrows={true}
+          />
         </section>
 
         {/* Awards & Recognition */}

@@ -37,6 +37,13 @@ api.interceptors.request.use(
     // Add request ID for correlation
     config.headers['X-Request-ID'] = generateRequestId();
     
+    // Add cache-busting headers for development
+    if (import.meta.env.DEV) {
+      config.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate';
+      config.headers['Pragma'] = 'no-cache';
+      config.headers['Expires'] = '0';
+    }
+    
     return config;
   },
   (error) => {

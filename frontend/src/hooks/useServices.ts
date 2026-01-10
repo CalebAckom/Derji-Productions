@@ -21,18 +21,20 @@ export function useServices(filters?: ServiceFilters) {
     return queryParams.toString();
   }, [filters?.categoryId, filters?.categorySlug, filters?.subcategory, filters?.search, filters?.active, filters?.priceRange]);
   
-  const url = `/services${queryString ? `?${queryString}` : ''}`;
+  const url = `/services${queryString ? `?${queryString}&_t=${Date.now()}` : `?_t=${Date.now()}`}`;
   
   const result = useGet<{ services: Service[]; pagination?: any }>(url, {
     immediate: true,
-    cacheKey: `services_${queryString}`,
-    cacheDuration: 2 * 60 * 1000, // 2 minutes cache for services
+    cacheKey: `services_${queryString}_${Date.now()}`, // Force fresh requests
+    cacheDuration: 0, // Disable caching temporarily
   });
 
   // Transform the result to return just the services array
+  // The API returns { message: "...", data: { services: [...], pagination: {...} } }
+  // The useGet hook extracts the 'data' field, so result.data is { services: [...], pagination: {...} }
   return {
     ...result,
-    data: result.data?.services || null,
+    data: result.data?.services || [],
   };
 }
 

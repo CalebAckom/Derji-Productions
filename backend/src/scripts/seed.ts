@@ -13,6 +13,7 @@ async function main() {
   await prisma.booking.deleteMany();
   await prisma.contactInquiry.deleteMany();
   await prisma.service.deleteMany();
+  await prisma.serviceCategory.deleteMany();
   await prisma.user.deleteMany();
 
   // Create admin user
@@ -28,13 +29,48 @@ async function main() {
     },
   });
 
+  // Create service categories first
+  console.log('📂 Creating service categories...');
+  const photographyCategory = await prisma.serviceCategory.create({
+    data: {
+      name: 'Photography',
+      slug: 'photography',
+      description: 'Professional photography services for all occasions',
+      icon: 'camera',
+      active: true,
+      sortOrder: 1,
+    },
+  });
+
+  const videographyCategory = await prisma.serviceCategory.create({
+    data: {
+      name: 'Videography',
+      slug: 'videography',
+      description: 'Professional video production and editing services',
+      icon: 'video',
+      active: true,
+      sortOrder: 2,
+    },
+  });
+
+  const soundCategory = await prisma.serviceCategory.create({
+    data: {
+      name: 'Sound Production',
+      slug: 'sound-production',
+      description: 'Professional audio recording and production services',
+      icon: 'microphone',
+      active: true,
+      sortOrder: 3,
+    },
+  });
+
   // Create services
   console.log('🎯 Creating services...');
   const photographyServices = await Promise.all([
     prisma.service.create({
       data: {
         name: 'Wedding Photography',
-        categoryId: 'cat_photography',
+        categoryId: photographyCategory.id,
         subcategory: 'Wedding',
         description: 'Professional wedding photography capturing your special moments with artistic flair and attention to detail.',
         basePrice: 1500.00,
@@ -47,7 +83,7 @@ async function main() {
     prisma.service.create({
       data: {
         name: 'Corporate Photography',
-        categoryId: 'cat_photography',
+        categoryId: photographyCategory.id,
         subcategory: 'Corporate',
         description: 'Professional corporate headshots and event photography for businesses and organizations.',
         basePrice: 200.00,
@@ -60,7 +96,7 @@ async function main() {
     prisma.service.create({
       data: {
         name: 'Birthday Photography',
-        categoryId: 'cat_photography',
+        categoryId: photographyCategory.id,
         subcategory: 'Birthday',
         description: 'Capture precious birthday moments with creative and fun photography sessions.',
         basePrice: 300.00,
@@ -72,8 +108,73 @@ async function main() {
     }),
     prisma.service.create({
       data: {
+        name: 'Graduation Photography',
+        categoryId: photographyCategory.id,
+        subcategory: 'Graduation',
+        description: 'Commemorate your graduation milestone with professional photography.',
+        basePrice: 250.00,
+        priceType: 'fixed',
+        duration: 90,
+        features: ['Cap and gown photos', 'Family portraits', 'Campus locations', 'Edited photos'],
+        active: true,
+      },
+    }),
+    prisma.service.create({
+      data: {
+        name: 'Church Event Photography',
+        categoryId: photographyCategory.id,
+        subcategory: 'Church Events',
+        description: 'Respectful and professional photography for religious ceremonies and church events.',
+        basePrice: 350.00,
+        priceType: 'fixed',
+        duration: 180,
+        features: ['Ceremony coverage', 'Group photos', 'Candid moments', 'Digital delivery'],
+        active: true,
+      },
+    }),
+    prisma.service.create({
+      data: {
+        name: 'Travel Photography',
+        categoryId: photographyCategory.id,
+        subcategory: 'Travel',
+        description: 'Capture your travel adventures with stunning destination photography.',
+        basePrice: 400.00,
+        priceType: 'hourly',
+        duration: 120,
+        features: ['Location scouting', 'Golden hour sessions', 'Lifestyle shots', 'Travel portfolio'],
+        active: true,
+      },
+    }),
+    prisma.service.create({
+      data: {
+        name: 'Studio Photography',
+        categoryId: photographyCategory.id,
+        subcategory: 'Studio',
+        description: 'Professional studio photography with controlled lighting and backdrops.',
+        basePrice: 180.00,
+        priceType: 'hourly',
+        duration: 60,
+        features: ['Professional studio', 'Multiple backdrops', 'Professional lighting', 'Wardrobe changes'],
+        active: true,
+      },
+    }),
+    prisma.service.create({
+      data: {
+        name: 'Location Photography',
+        categoryId: photographyCategory.id,
+        subcategory: 'Location',
+        description: 'On-location photography sessions at your preferred venue or outdoor setting.',
+        basePrice: 220.00,
+        priceType: 'hourly',
+        duration: 90,
+        features: ['Location flexibility', 'Natural lighting', 'Environmental portraits', 'Travel included'],
+        active: true,
+      },
+    }),
+    prisma.service.create({
+      data: {
         name: 'Drone Aerial Photography',
-        categoryId: 'cat_photography',
+        categoryId: photographyCategory.id,
         subcategory: 'Drone aerial shoot',
         description: 'Stunning aerial photography and videography using professional drone equipment.',
         basePrice: 400.00,
@@ -89,7 +190,7 @@ async function main() {
     prisma.service.create({
       data: {
         name: 'Live Streaming',
-        categoryId: 'cat_videography',
+        categoryId: videographyCategory.id,
         subcategory: 'Livestreaming',
         description: 'Professional live streaming services for events, conferences, and special occasions.',
         basePrice: 500.00,
@@ -102,7 +203,7 @@ async function main() {
     prisma.service.create({
       data: {
         name: 'Video Post-Production',
-        categoryId: 'cat_videography',
+        categoryId: videographyCategory.id,
         subcategory: 'Post-production',
         description: 'Complete video editing and post-production services including color grading and audio mixing.',
         basePrice: 100.00,
@@ -115,7 +216,7 @@ async function main() {
     prisma.service.create({
       data: {
         name: 'Podcast Video Production',
-        categoryId: 'cat_videography',
+        categoryId: videographyCategory.id,
         subcategory: 'Podcast',
         description: 'Complete podcast video production from recording to final edited episodes.',
         basePrice: 800.00,
@@ -125,13 +226,39 @@ async function main() {
         active: true,
       },
     }),
+    prisma.service.create({
+      data: {
+        name: 'Drone Video Coverage',
+        categoryId: videographyCategory.id,
+        subcategory: 'Drone coverage',
+        description: 'Professional aerial videography for events, real estate, and promotional content.',
+        basePrice: 600.00,
+        priceType: 'fixed',
+        duration: 120,
+        features: ['4K drone footage', 'Cinematic shots', 'Professional pilot', 'Edited deliverables'],
+        active: true,
+      },
+    }),
+    prisma.service.create({
+      data: {
+        name: 'Video Consultation & Training',
+        categoryId: videographyCategory.id,
+        subcategory: 'Consultation/training',
+        description: 'Professional consultation and training services for video production techniques.',
+        basePrice: 150.00,
+        priceType: 'hourly',
+        duration: 60,
+        features: ['Equipment recommendations', 'Technique training', 'Workflow optimization', 'Hands-on practice'],
+        active: true,
+      },
+    }),
   ]);
 
   const soundServices = await Promise.all([
     prisma.service.create({
       data: {
         name: 'Live Sound Production',
-        categoryId: 'cat_sound',
+        categoryId: soundCategory.id,
         subcategory: 'Live sound production',
         description: 'Professional live sound engineering for concerts, events, and performances.',
         basePrice: 300.00,
@@ -144,7 +271,7 @@ async function main() {
     prisma.service.create({
       data: {
         name: 'Audio Post-Production',
-        categoryId: 'cat_sound',
+        categoryId: soundCategory.id,
         subcategory: 'Post sound production',
         description: 'Professional audio editing, mixing, and mastering services for various media projects.',
         basePrice: 80.00,
@@ -157,13 +284,26 @@ async function main() {
     prisma.service.create({
       data: {
         name: 'Podcast Audio Production',
-        categoryId: 'cat_sound',
+        categoryId: soundCategory.id,
         subcategory: 'Podcast',
         description: 'Complete podcast audio production including recording, editing, and distribution preparation.',
         basePrice: 150.00,
         priceType: 'fixed',
         duration: 120,
         features: ['Studio recording', 'Audio editing', 'Intro/outro creation', 'Distribution formats'],
+        active: true,
+      },
+    }),
+    prisma.service.create({
+      data: {
+        name: 'Audio Consultation & Training',
+        categoryId: soundCategory.id,
+        subcategory: 'Consultation/training',
+        description: 'Professional consultation and training for audio recording and production techniques.',
+        basePrice: 120.00,
+        priceType: 'hourly',
+        duration: 60,
+        features: ['Equipment setup', 'Recording techniques', 'Software training', 'Workflow optimization'],
         active: true,
       },
     }),
@@ -396,6 +536,7 @@ async function main() {
   console.log(`
 📊 Seeded data summary:
 - 1 admin user
+- 3 service categories
 - ${photographyServices.length + videographyServices.length + soundServices.length} services
 - ${portfolioItems.length} portfolio items
 - 5 portfolio media files
