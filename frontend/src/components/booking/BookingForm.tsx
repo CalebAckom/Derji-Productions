@@ -54,8 +54,38 @@ const BookingForm: React.FC<BookingFormProps> = ({
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [bookingResult, setBookingResult] = useState<any>(null);
 
-  const { data: services, loading: servicesLoading } = useServices({ active: true });
+  const { data: services, loading: servicesLoading, error: servicesError } = useServices({ active: true });
   const servicesList = Array.isArray(services) ? services : [];
+  
+  // Debug logging
+  console.log('Services Debug:', {
+    services,
+    servicesLoading,
+    servicesError,
+    servicesList,
+    servicesListLength: servicesList.length,
+    servicesType: typeof services,
+    servicesIsArray: Array.isArray(services),
+    timestamp: new Date().toISOString()
+  });
+
+  // Test API directly on mount
+  useEffect(() => {
+    const testApi = async () => {
+      try {
+        const response = await fetch('http://localhost:5000/api/services?active=true');
+        const data = await response.json();
+        console.log('Direct API test result:', {
+          status: response.status,
+          servicesCount: data.data?.services?.length || 0,
+          firstService: data.data?.services?.[0]?.name || 'none'
+        });
+      } catch (error) {
+        console.error('Direct API test failed:', error);
+      }
+    };
+    testApi();
+  }, []);
   
   const {
     register,
