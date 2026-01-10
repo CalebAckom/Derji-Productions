@@ -1,0 +1,41 @@
+name: "CodeQL Analysis"
+
+on:
+  push:
+    branches: [ "main", "testing", "chore/error-handling" ]
+  pull_request:
+    branches: [ "main" ]
+  # schedule:
+  #   - cron: '30 1 * * 1' # Runs every Monday at 1:30 AM
+
+jobs:
+  analyze:
+    name: Analyze
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      security-events: write # Required to post results to the Security tab
+
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [ 'javascript-typescript' ] # Supports JS, TS, JSX
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    # Initializes the CodeQL tools for scanning.
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@v3
+      with:
+        languages: ${{ matrix.language }}
+        # If your project uses a lot of external libraries, 
+        # 'security-extended' is a great additional suite.
+        queries: security-extended,security-and-quality
+
+    # For JS/TS, CodeQL scans the source code directly. 
+    # No build step (pnpm build) is strictly required for the scan.
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v3
