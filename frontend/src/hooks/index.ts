@@ -13,5 +13,8 @@ export * from './useBookings';
 // Contact hooks
 export * from './useContact';
 
+// Error handling hooks
+export * from './useErrorHandler';
+
 // Utility hooks
 export * from './useDebounce';

@@ -102,6 +102,17 @@ export interface ApiError {
   details?: Record<string, any>;
 }
 
+// Enhanced error types for better error handling
+export interface AppError {
+  id: string;
+  type: 'network' | 'validation' | 'server' | 'client' | 'unknown';
+  message: string;
+  details?: any;
+  timestamp: Date;
+  recoverable: boolean;
+  retryAction?: () => void;
+}
+
 export interface PaginatedResponse<T> {
   data: T[];
   pagination: {
