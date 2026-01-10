@@ -1,19 +1,28 @@
 import axios, { AxiosResponse, AxiosError, AxiosRequestConfig } from 'axios';
 import { ApiResponse, ApiError } from '@/types';
 
-// Retry configuration
+// Retry configuration with exponential backoff
 interface RetryConfig {
   retries: number;
   retryDelay: number;
+  maxRetryDelay: number;
   retryCondition?: (error: AxiosError) => boolean;
+  onRetry?: (retryCount: number, error: AxiosError) => void;
 }
 
 const defaultRetryConfig: RetryConfig = {
   retries: 3,
   retryDelay: 1000,
+  maxRetryDelay: 10000,
   retryCondition: (error: AxiosError) => {
-    // Retry on network errors or 5xx server errors
-    return !error.response || (error.response.status >= 500 && error.response.status < 600);
+    // Retry on network errors, timeouts, or 5xx server errors
+    return !error.response || 
+           error.code === 'NETWORK_ERROR' ||
+           error.code === 'ECONNABORTED' ||
+           (error.response.status >= 500 && error.response.status < 600);
+  },
+  onRetry: (retryCount, error) => {
+    console.log(`Retrying request (attempt ${retryCount}):`, error.message);
   },
 };
 
@@ -101,12 +110,69 @@ function generateRequestId(): string {
   return `req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 }
 
-// Exponential backoff delay calculation
-function calculateDelay(attempt: number, baseDelay: number): number {
-  return baseDelay * Math.pow(2, attempt - 1) + Math.random() * 1000;
+// Exponential backoff delay calculation with jitter
+function calculateDelay(attempt: number, baseDelay: number, maxDelay: number): number {
+  const exponentialDelay = baseDelay * Math.pow(2, attempt - 1);
+  const jitter = Math.random() * 1000; // Add random jitter to prevent thundering herd
+  return Math.min(exponentialDelay + jitter, maxDelay);
 }
 
-// Enhanced API request wrapper with retry logic
+// Check if error is retryable
+function isRetryableError(error: AxiosError): boolean {
+  // Network errors
+  if (!error.response) return true;
+  
+  // Timeout errors
+  if (error.code === 'ECONNABORTED') return true;
+  
+  // Server errors (5xx)
+  if (error.response.status >= 500) return true;
+  
+  // Rate limiting (429)
+  if (error.response.status === 429) return true;
+  
+  return false;
+}
+
+// Enhanced error message extraction
+function extractErrorMessage(error: AxiosError): string {
+  if (error.response?.data && typeof error.response.data === 'object') {
+    const apiError = error.response.data as any;
+    if (apiError.message) {
+      return apiError.message;
+    }
+    if (apiError.error) {
+      return apiError.error;
+    }
+  }
+  
+  if (error.message) {
+    return error.message;
+  }
+  
+  switch (error.response?.status) {
+    case 400:
+      return 'Invalid request. Please check your input and try again.';
+    case 401:
+      return 'Authentication required. Please log in and try again.';
+    case 403:
+      return 'You do not have permission to perform this action.';
+    case 404:
+      return 'The requested resource was not found.';
+    case 429:
+      return 'Too many requests. Please wait a moment and try again.';
+    case 500:
+      return 'Server error. Please try again later.';
+    case 502:
+      return 'Service temporarily unavailable. Please try again later.';
+    case 503:
+      return 'Service maintenance in progress. Please try again later.';
+    default:
+      return 'An unexpected error occurred. Please try again.';
+  }
+}
+
+// Enhanced API request wrapper with retry logic and better error handling
 export const apiRequest = async <T>(
   method: 'GET' | 'POST' | 'PUT' | 'DELETE',
   url: string,
@@ -116,7 +182,7 @@ export const apiRequest = async <T>(
   const retryConfig = { ...defaultRetryConfig, ...config?.retryConfig };
   const { retryConfig: _, ...axiosConfig } = config || {};
   
-  let lastError: Error | null = null;
+  let lastError: AxiosError | null = null;
   
   for (let attempt = 1; attempt <= retryConfig.retries + 1; attempt++) {
     try {
@@ -127,31 +193,51 @@ export const apiRequest = async <T>(
         ...axiosConfig,
       });
       
+      // Success - return the data
       return response.data.data;
     } catch (error) {
-      lastError = error as Error;
+      lastError = error as AxiosError;
       
-      // Don't retry on last attempt or if retry condition not met
-      if (attempt === retryConfig.retries + 1 || 
-          (axios.isAxiosError(error) && retryConfig.retryCondition && !retryConfig.retryCondition(error))) {
+      // Don't retry on last attempt
+      if (attempt === retryConfig.retries + 1) {
         break;
       }
       
-      // Wait before retrying with exponential backoff
-      if (attempt <= retryConfig.retries) {
-        const delay = calculateDelay(attempt, retryConfig.retryDelay);
-        await new Promise(resolve => setTimeout(resolve, delay));
+      // Check if error is retryable
+      const shouldRetry = retryConfig.retryCondition 
+        ? retryConfig.retryCondition(lastError)
+        : isRetryableError(lastError);
+      
+      if (!shouldRetry) {
+        break;
       }
+      
+      // Call retry callback if provided
+      if (retryConfig.onRetry) {
+        retryConfig.onRetry(attempt, lastError);
+      }
+      
+      // Wait before retrying with exponential backoff
+      const delay = calculateDelay(attempt, retryConfig.retryDelay, retryConfig.maxRetryDelay);
+      await new Promise(resolve => setTimeout(resolve, delay));
     }
   }
   
   // Handle final error
-  if (lastError && axios.isAxiosError(lastError) && lastError.response?.data) {
-    const apiError = lastError.response.data as ApiError;
-    throw new Error(apiError.message || apiError.error || 'An error occurred');
+  if (lastError) {
+    const errorMessage = extractErrorMessage(lastError);
+    const error = new Error(errorMessage);
+    
+    // Attach additional error information
+    (error as any).originalError = lastError;
+    (error as any).status = lastError.response?.status;
+    (error as any).isNetworkError = !lastError.response;
+    (error as any).isRetryable = isRetryableError(lastError);
+    
+    throw error;
   }
   
-  throw new Error(lastError?.message || 'Network error occurred');
+  throw new Error('Request failed with unknown error');
 };
 
 // Convenience methods with retry support
